@@ -1,10 +1,7 @@
 ---
-title: API Reference
+title: YAML
 
 language_tabs: # must be one of https://git.io/vQNgJ
-  - shell
-  - ruby
-  - python
   - javascript
 
 toc_footers:
