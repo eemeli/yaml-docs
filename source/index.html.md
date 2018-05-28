@@ -165,3 +165,106 @@ The easiest way to extend a schema is by defining the additional **tags** that y
 <aside class="notice">
 A YAML schema is a combination of a set of tags and a mechanism for resolving non-specific tags.
 </aside>
+
+# YAML Objects
+
+## YAML.parseDocuments
+
+```js
+import fs from 'fs'
+import YAML from 'yaml'
+
+const file = fs.readFileSync('./file.yml', 'utf8')
+const docs = YAML.parseDocuments(file)
+docs[0].contents
+// YAMLMap {
+//   anchor: null,
+//   comment: null,
+//   commentBefore: null,
+//   tag: 'tag:yaml.org,2002:map',
+//   doc: Document { ... },
+//   items:
+//    [ Pair {
+//        key: Scalar { ..., value: 'YAML' },
+//        value: YAMLSeq { ...,
+//          items:
+//            [ Scalar { ..., value: 'A human-readable data serialization language' },
+//              Scalar { ..., value: 'https://en.wikipedia.org/wiki/YAML' } ] } },
+//      Pair {
+//        key: Scalar { ..., value: 'yaml' },
+//        value: YAMLSeq { ...,
+//          items:
+//            [ Scalar { ..., value: 'A complete JavaScript implementation' },
+//              Scalar { ..., value: 'https://www.npmjs.com/package/yaml' } ] } } ] }
+```
+
+#### `YAML.parseDocuments(str, options = {}): YAML.Document[]`
+
+When parsing YAML, the input string `str` is considered as a stream of documents separated from each other by `...` document end marker lines. `YAML.parseDocuments` (used internally by `YAML.parse`) will return an array of `Document` objects that allow these documents to be parsed and manipulated with more control.
+
+This function should never throw; errors and warnings are included in the documents' `errors` and `warnings` arrays. In particular, if `errors` is not empty it's likely that the document's parsed `contents` are not entirely correct.
+
+The returned documents' `contents` will always consist of `Scalar`, `Map`, `Seq` or `null` values.
+
+## YAML.Document
+
+```js
+const doc = new YAML.Document()
+// Document {
+//   anchors: {},
+//   commentBefore: null,
+//   comment: null,
+//   contents: null,
+//   errors: [],
+//   tagPrefixes: [],
+//   schema:
+//    Tags {
+//      merge: false,
+//      schema:
+//       [ ...,
+//         { class: [Function: Boolean],
+//           tag: 'tag:yaml.org,2002:bool',
+//           test: /^(?:true|false)$/i,
+//           resolve: [Function: resolve] },
+//         ... ] },
+//   version: null,
+//   warnings: [] }
+
+doc.version = true
+doc.commentBefore = ' A commented document'
+doc.contents = ['some', 'values', { balloons: 99 }]
+
+String(doc)
+// # A commented document
+// %YAML 1.2
+// ---
+// - some
+// - values
+// - balloons: 99
+```
+
+#### `new YAML.Document(options = {})`
+
+#### `new YAML.Document(schema)`
+
+A YAML Document will need to include a schema definition. Its constructor may thefore be called with a ready `schema`, or the `options` (see [`YAML.defaultOptions`](#yaml-defaultoptions)) required for its construction.
+
+| Member        | Type       | Description                                                                                                                                  |
+| ------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| commentBefore | `string?`  | A comment at the very beginning of the document.                                                                                             |
+| comment       | `string?`  | A comment at the end of the document.                                                                                                        |
+| contents      | `any`      | The document contents.                                                                                                                       |
+| errors        | `Error[]`  | Errors encountered during parsing.                                                                                                           |
+| tagPrefixes   | `Prefix[]` | Array of prefixes; each will have a string `handle` that starts and ends with `!` and a string `prefix` that the handle will be replaced by. |
+| schema        | `Schema`   | The schema used with the document.                                                                                                           |
+| version       | `string?`  | The parsed version of the source document; if true-ish, stringified output will include a `%YAML 1.2` directive.                             |
+| warnings      | `Error[]`  | Warnings encountered during parsing.                                                                                                         |
+
+| Method                       | Return type | Description                                                                                    |
+| ---------------------------- | ----------- | ---------------------------------------------------------------------------------------------- |
+| parse(ast)                   | `Document`  | Parse an AST into this document                                                                |
+| resolveValue(value)          | `Node`      | Turn objects into `Map`, arrays to `Seq`, and wrap plain values in `Scalar`.                   |
+| listNonDefaultTags()         | `string[]`  | List the tags used in the document that are not in the default `tag:yaml.org,2002:` namespace. |
+| setTagPrefix(handle, prefix) | `undefined` | Set `handle` as a shorthand string for the `prefix` tag namespace.                             |
+| toJSON()                     | `any`       | A plain JavaScript representation of the document `contents`.                                  |
+| toString()                   | `string`    | A YAML representation of the document.                                                         |
