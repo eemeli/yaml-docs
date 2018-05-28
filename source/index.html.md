@@ -218,7 +218,7 @@ const doc = new YAML.Document()
 //   errors: [],
 //   tagPrefixes: [],
 //   schema:
-//    Tags {
+//    Schema {
 //      merge: false,
 //      schema:
 //       [ ...,
@@ -255,10 +255,12 @@ A YAML Document will need to include a schema definition. Its constructor may th
 | comment       | `string?`  | A comment at the end of the document.                                                                                                        |
 | contents      | `any`      | The document contents.                                                                                                                       |
 | errors        | `Error[]`  | Errors encountered during parsing.                                                                                                           |
-| tagPrefixes   | `Prefix[]` | Array of prefixes; each will have a string `handle` that starts and ends with `!` and a string `prefix` that the handle will be replaced by. |
 | schema        | `Schema`   | The schema used with the document.                                                                                                           |
+| tagPrefixes   | `Prefix[]` | Array of prefixes; each will have a string `handle` that starts and ends with `!` and a string `prefix` that the handle will be replaced by. |
 | version       | `string?`  | The parsed version of the source document; if true-ish, stringified output will include a `%YAML 1.2` directive.                             |
 | warnings      | `Error[]`  | Warnings encountered during parsing.                                                                                                         |
+
+The Document members are all modifiable, though it's unlikely that you'll have reason to change `errors`, `schema` or `warnings`. In particular you may be interested in both reading and writing **`contents`**. Although `YAML.parseDocuments()` will leave it with `Map`, `Seq`, `Scalar` or `null` contents, it can be set to anything.
 
 | Method                       | Return type | Description                                                                                    |
 | ---------------------------- | ----------- | ---------------------------------------------------------------------------------------------- |
@@ -268,3 +270,13 @@ A YAML Document will need to include a schema definition. Its constructor may th
 | setTagPrefix(handle, prefix) | `undefined` | Set `handle` as a shorthand string for the `prefix` tag namespace.                             |
 | toJSON()                     | `any`       | A plain JavaScript representation of the document `contents`.                                  |
 | toString()                   | `string`    | A YAML representation of the document.                                                         |
+
+**`parse(ast)`** is mostly an internal method, modifying the document according to the contents of the parsed `ast`. Calling this multiple times on a Document is not recommended.
+
+To attach comments or other metadata to a value, use **`resolveValue(value)`** to wrap it in container object and then set the returned value as the Document `contents`, or deeper within the contents.
+
+To define a tag prefix to use when stringifying, use **`setTagPrefix(handle, prefix)`** rather than setting a value directly in `tagPrefixes`. This will guarantee that the `handle` is valid (by throwing an error), and will overwrite any previous definition for the `handle`. Use an empty `prefix` value to remove a prefix.
+
+For a plain JavaScript representation of the document, **`toJSON()`** is your friend. Do note that it will call `toJSON()` methods recursively on the contents, so e.g. `Date` objects will also be stringified.
+
+Conversely, to stringify a document as YAML, use **`toString()`**. This will also be called by `String(doc)`. This method will throw if the `errors` array is not empty.
