@@ -280,3 +280,38 @@ To define a tag prefix to use when stringifying, use **`setTagPrefix(handle, pre
 For a plain JavaScript representation of the document, **`toJSON()`** is your friend. Do note that it will call `toJSON()` methods recursively on the contents, so e.g. `Date` objects will also be stringified.
 
 Conversely, to stringify a document as YAML, use **`toString()`**. This will also be called by `String(doc)`. This method will throw if the `errors` array is not empty.
+
+## Comments
+
+```js
+const doc = YAML.parseDocuments(`
+# This is YAML.
+---
+it has:
+  - an array
+  - of values
+`)[0]
+
+doc.toJSON()
+// { 'it has': [ 'an array', 'of values' ] }
+
+doc.commentBefore
+// ' This is YAML.'
+
+const seq = doc.contents.items[0].value
+seq.items[0].comment = ' item comment'
+seq.comment = ' collection end comment'
+
+doc.toString()
+// # This is YAML.
+// it has:
+//   - an array # item comment
+//   - of values
+//   # collection end comment
+```
+
+A primary differentiator between this and other YAML libraries is the ability to programmatically handle comments, which according to [the spec](http://yaml.org/spec/1.2/spec.html#id2767100) "must not have any effect on the serialization tree or representation graph. In particular, comments are not associated with a particular node."
+
+This library does allow comments to be handled programmatically, and does attach them to particular nodes. Each `Scalar`, `Map`, `Seq` and the `Document` itself has `comment` and `commentBefore` members that may be set to a stringifiable value. The string contents of comments are not processed by the library, except for merging adjacent comment lines together and prefixing each line with the `#` comment indicator.
+
+**Note**: Due to implementation details, the library's comment handling is not completely stable. In particular, when reading and writing a YAML file, comments may move around a bit due to getting associated with a different node than intended.
