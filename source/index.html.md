@@ -11,6 +11,7 @@ includes:
   - data_schema
   - yaml_objects
   - ast_parser
+  - errors
 
 search: true
 ---

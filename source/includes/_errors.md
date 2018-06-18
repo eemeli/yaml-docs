@@ -1,22 +1,25 @@
 # Errors
 
-<aside class="notice">
-This error section is stored in a separate file in <code>includes/_errors.md</code>. Slate allows you to optionally separate out your docs into many files...just save them to the <code>includes</code> folder and add them to the top of your <code>index.md</code>'s frontmatter. Files are included in the order listed.
-</aside>
+All errors and warnings produced by the `yaml` parser functions contain the following fields:
 
-The Kittn API uses the following error codes:
+| Member  | Type       | Description                                                                           |
+| ------- | ---------- | ------------------------------------------------------------------------------------- |
+| name    | `string`   | One of `YAMLReferenceError`, `YAMLSemanticError`, `YAMLSyntaxError`, or `YAMLWarning` |
+| message | `string`   | A human-readable description of the error                                             |
+| source  | `AST Node` | The AST node at which this error or warning was encountered                           |
 
+## YAMLReferenceError
 
-Error Code | Meaning
----------- | -------
-400 | Bad Request -- Your request is invalid.
-401 | Unauthorized -- Your API key is wrong.
-403 | Forbidden -- The kitten requested is hidden for administrators only.
-404 | Not Found -- The specified kitten could not be found.
-405 | Method Not Allowed -- You tried to access a kitten with an invalid method.
-406 | Not Acceptable -- You requested a format that isn't json.
-410 | Gone -- The kitten requested has been removed from our servers.
-418 | I'm a teapot.
-429 | Too Many Requests -- You're requesting too many kittens! Slow down!
-500 | Internal Server Error -- We had a problem with our server. Try again later.
-503 | Service Unavailable -- We're temporarily offline for maintenance. Please try again later.
+An error resolving a tag or an anchor that is referred to in the source. It is likely that the contents of the `source` node have not been completely parsed into the document. Not used by the AST parser.
+
+## YAMLSemanticError
+
+An error related to the metadata of the document, or an error with limitations imposed by the YAML spec. The data contents of the document should be valid, but the metadata may be broken.
+
+## YAMLSyntaxError
+
+A serious parsing error; the document contents will not be complete, and the AST is likely to be rather broken.
+
+## YAMLWarning
+
+Not an error, but a spec-mandated warning about unsupported directives or a fallback resolution being used for a node with an unavailable tag. Not used by the AST parser.
