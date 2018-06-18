@@ -168,6 +168,8 @@ A YAML schema is a combination of a set of tags and a mechanism for resolving no
 
 # YAML Objects
 
+In order to work with YAML features not directly supported by native JavaScript data types, such as comments and non-string keys, `yaml` provides the `YAML.Document` API.
+
 ## YAML.parseDocuments
 
 ```js
@@ -280,6 +282,36 @@ To define a tag prefix to use when stringifying, use **`setTagPrefix(handle, pre
 For a plain JavaScript representation of the document, **`toJSON()`** is your friend. Do note that it will call `toJSON()` methods recursively on the contents, so e.g. `Date` objects will also be stringified.
 
 Conversely, to stringify a document as YAML, use **`toString()`**. This will also be called by `String(doc)`. This method will throw if the `errors` array is not empty.
+
+## Collections
+
+```js
+import YAML from 'yaml'
+import Pair from 'yaml/pair'
+import Seq from 'yaml/seq'
+
+const doc = new YAML.Document()
+doc.contents = new Seq(doc)
+doc.contents.items = [
+  'some values',
+  42,
+  { including: 'objects', 3: 'a string' }
+]
+doc.contents.items.push(new Pair(1, 'a number'))
+
+doc.toString()
+// - some values
+// - 42
+// - "3": a string
+//   including: objects
+// - 1: a number
+```
+
+Within a YAML document, two forms of collections are supported: sequential `Seq` collections and key-value `Map` collections. The JavaScript representations of these collections both have an `items` array, which may (`Seq`) or must (`Map`) consist of `Pair` objects that contain a `key` and a `value` of any type, including `null`. The `items` array of a `Seq` object may contain values of any type.
+
+To construct a `Seq` or `Map`, use `Document#resolveValue()` with array or object input, or create the collections directly by importing the classes from `yaml/seq` and `yaml/map`. Do note that `new Seq` and `new Map` require a `YAML.Document` parameter, as the YAML stringification will depend on the document-specific schema.
+
+Once created, normal array operations may be used to modify the `items` array. New `Pair` objects may created by importing the class from `yaml/pair` and using its `new Pair(key, value)` constructor. Note in particular that this is required to create non-`string` keys.
 
 ## Comments
 
