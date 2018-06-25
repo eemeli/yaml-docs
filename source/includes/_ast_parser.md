@@ -37,7 +37,7 @@ The AST parser will not produce an AST that is necessarily valid YAML, and in pa
 
 The public API of the library is a single function which returns an array of parsed AST documents. The array and its contained nodes override the default `toString` method, each returning a YAML string representation of its contents.
 
-If a node has its `value` set, that will be used when re-stringifying. Care should be taken when modifying the AST, as no error checks are included to verify that the resulting YAML is valid, or that e.g. indentation levels aren't broken. In other words, this is an engineering tool and you may hurt yourself. If you're looking to generate a brand new YAML document, you should probably not be using this library directly.
+If a node has its `value` set, that will be used when re-stringifying. Care should be taken when modifying the AST, as no error checks are included to verify that the resulting YAML is valid, or that e.g. indentation levels aren't broken. In other words, this is an engineering tool and you may hurt yourself. If you're looking to generate a brand new YAML document, you should probably not be using this API directly.
 
 For more usage examples and AST trees, have a look through the [extensive test suite](https://github.com/eemeli/yaml/tree/master/__tests__/ast) included in the project's repository.
 
@@ -77,7 +77,7 @@ doc.contents.items[0].value.items[0].value.value
 // 'bad YAML'
 ```
 
-While the YAML spec considers e.g. block collections within a flow collection to be an error, this error will not be detected by the AST parser. For complete validation, you will need to parse the AST into a `YAML.Document`. If the document contains errors, they will be included in the document's `errors` array, and each error will will contain a `source` reference to the AST node where it was encountered. Do note that even if an error is encountered, the document contents might still be available.
+While the YAML spec considers e.g. block collections within a flow collection to be an error, this error will not be detected by the AST parser. For complete validation, you will need to parse the AST into a `YAML.Document`. If the document contains errors, they will be included in the document's `errors` array, and each error will will contain a `source` reference to the AST node where it was encountered. Do note that even if an error is encountered, the document contents might still be available. In such a case, the error will be a [`YAMLSemanticError`](#yamlsemanticerror) rather than a [`YAMLSyntaxError`](#yamlsyntaxerror).
 
 ## AST Nodes
 
@@ -112,7 +112,8 @@ class Node {
     'DIRECTIVE' | 'DOCUMENT' | 'FLOW_MAP' | 'FLOW_SEQ' |
     'MAP' | 'MAP_KEY' | 'MAP_VALUE' | 'PLAIN' |
     'QUOTE_DOUBLE' | 'QUOTE_SINGLE' | 'SEQ' | 'SEQ_ITEM',
-  value: ?string        // if non-null, overrides source value
+  value: ?string        // if set to a non-null value, overrides
+                        //   source value when stringified
   +anchor: ?string,     // anchor, if set
   +comment: ?string,    // newline-delimited comment(s), if any
   +rawValue: ?string,   // an unprocessed slice of context.src
@@ -152,7 +153,7 @@ class Comment extends Node {
 }
 ```
 
-While `Alias` nodes are not technically scalars, they are parsed as such at this level.
+While `Alias` and `Comment` nodes are not technically scalars, they are parsed as such at this level.
 
 Due to parsing differences, each scalar type is implemented using its own class.
 
