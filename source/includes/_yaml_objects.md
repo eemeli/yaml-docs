@@ -16,7 +16,6 @@ docs[0].contents
 //   comment: null,
 //   commentBefore: null,
 //   tag: 'tag:yaml.org,2002:map',
-//   doc: Document { ... },
 //   items:
 //    [ Pair {
 //        key: Scalar { ..., value: 'YAML' },
@@ -99,15 +98,12 @@ The Document members are all modifiable, though it's unlikely that you'll have r
 | Method                       | Return type | Description                                                                                    |
 | ---------------------------- | ----------- | ---------------------------------------------------------------------------------------------- |
 | parse(ast)                   | `Document`  | Parse an AST into this document                                                                |
-| resolveValue(value)          | `Node`      | Turn objects into `Map`, arrays to `Seq`, and wrap plain values in `Scalar`.                   |
 | listNonDefaultTags()         | `string[]`  | List the tags used in the document that are not in the default `tag:yaml.org,2002:` namespace. |
 | setTagPrefix(handle, prefix) | `undefined` | Set `handle` as a shorthand string for the `prefix` tag namespace.                             |
 | toJSON()                     | `any`       | A plain JavaScript representation of the document `contents`.                                  |
 | toString()                   | `string`    | A YAML representation of the document.                                                         |
 
 **`parse(ast)`** is mostly an internal method, modifying the document according to the contents of the parsed `ast`. Calling this multiple times on a Document is not recommended.
-
-To attach comments or other metadata to a value, use **`resolveValue(value)`** to wrap it in container object and then set the returned value as the Document `contents`, or deeper within the contents.
 
 To define a tag prefix to use when stringifying, use **`setTagPrefix(handle, prefix)`** rather than setting a value directly in `tagPrefixes`. This will guarantee that the `handle` is valid (by throwing an error), and will overwrite any previous definition for the `handle`. Use an empty `prefix` value to remove a prefix.
 
@@ -123,7 +119,7 @@ import Pair from 'yaml/pair'
 import Seq from 'yaml/seq'
 
 const doc = new YAML.Document()
-doc.contents = new Seq(doc)
+doc.contents = new Seq()
 doc.contents.items = [
   'some values',
   42,
@@ -139,11 +135,44 @@ doc.toString()
 // - 1: a number
 ```
 
+#### `new Map(), new Seq(), new Pair(key, value)`
+
 Within a YAML document, two forms of collections are supported: sequential `Seq` collections and key-value `Map` collections. The JavaScript representations of these collections both have an `items` array, which may (`Seq`) or must (`Map`) consist of `Pair` objects that contain a `key` and a `value` of any type, including `null`. The `items` array of a `Seq` object may contain values of any type.
 
-To construct a `Seq` or `Map`, use `Document#resolveValue()` with array or object input, or create the collections directly by importing the classes from `yaml/seq` and `yaml/map`. Do note that `new Seq` and `new Map` require a `YAML.Document` parameter, as the YAML stringification will depend on the document-specific schema.
+To construct a `Seq` or `Map`, use `YAML.createNode()` with array or object input, or create the collections directly by importing the classes from `yaml/seq` and `yaml/map`.
 
 Once created, normal array operations may be used to modify the `items` array. New `Pair` objects may created by importing the class from `yaml/pair` and using its `new Pair(key, value)` constructor. Note in particular that this is required to create non-`string` keys.
+
+## YAML.createNode
+
+```js
+const seq = YAML.createNode(['some', 'values', { balloons: 99 }])
+// YAMLSeq {
+//   anchor: null,
+//   comment: null,
+//   commentBefore: null,
+//   tag: null,
+//   items:
+//    [ Scalar { ..., value: 'some' },
+//      Scalar { ..., value: 'values' },
+//      YAMLMap { ..., items: [ Pair {
+//        key: Scalar { ..., value: 'balloons' },
+//        value: Scalar { ..., value: 99 } } ] } ] }
+
+const doc = new YAML.Document()
+doc.contents = seq
+seq.items[0].comment = ' A commented item'
+String(doc)
+// - some # A commented item
+// - values
+// - balloons: 99
+```
+
+#### `YAML.createNode(value, wrapScalars = true): Map | Seq | Scalar | string | number | boolean | null`
+
+`YAML.createNode` recursively turns objects into `Map` and arrays to `Seq` collections. If `wrapScalars` is undefined or `true`, it also wraps plain values in `Scalar` objects. Its primary use is to enable attaching comments or other metadata to a value, or to otherwise exert more fine-grained control over the stringified output.
+
+To stringify the output of `YAML.createNode` as YAML, you'll need to assign it to the `contents` of a Document (or somewhere within said contents), as the document's schema is required for YAML string output.
 
 ## Comments
 
