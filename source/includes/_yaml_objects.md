@@ -2,6 +2,8 @@
 
 In order to work with YAML features not directly supported by native JavaScript data types, such as comments and non-string keys, `yaml` provides the `YAML.Document` API.
 
+Each `YAML.Document` is the root node of an [**Abstract Syntax Tree**](https://en.wikipedia.org/wiki/Abstract_syntax_tree) of nodes representing a single YAML document.
+
 ## YAML.parseDocuments
 
 ```js
@@ -97,13 +99,13 @@ The Document members are all modifiable, though it's unlikely that you'll have r
 
 | Method                       | Return type | Description                                                                                    |
 | ---------------------------- | ----------- | ---------------------------------------------------------------------------------------------- |
-| parse(ast)                   | `Document`  | Parse an AST into this document                                                                |
+| parse(cst)                   | `Document`  | Parse a CST into this document                                                                |
 | listNonDefaultTags()         | `string[]`  | List the tags used in the document that are not in the default `tag:yaml.org,2002:` namespace. |
 | setTagPrefix(handle, prefix) | `undefined` | Set `handle` as a shorthand string for the `prefix` tag namespace.                             |
 | toJSON()                     | `any`       | A plain JavaScript representation of the document `contents`.                                  |
 | toString()                   | `string`    | A YAML representation of the document.                                                         |
 
-**`parse(ast)`** is mostly an internal method, modifying the document according to the contents of the parsed `ast`. Calling this multiple times on a Document is not recommended.
+**`parse(cst)`** is mostly an internal method, modifying the document according to the contents of the parsed `cst`. Calling this multiple times on a Document is not recommended.
 
 To define a tag prefix to use when stringifying, use **`setTagPrefix(handle, prefix)`** rather than setting a value directly in `tagPrefixes`. This will guarantee that the `handle` is valid (by throwing an error), and will overwrite any previous definition for the `handle`. Use an empty `prefix` value to remove a prefix.
 

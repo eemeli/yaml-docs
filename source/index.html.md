@@ -11,7 +11,7 @@ includes:
   - pure_js
   - data_schema
   - yaml_objects
-  - ast_parser
+  - cst_parser
   - errors
 
 search: true

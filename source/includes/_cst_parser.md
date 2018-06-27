@@ -1,13 +1,13 @@
-# AST Parser
+# CST Parser
 
-For ease of implementation and to provide better error handling and reporting, the lowest level of the library's parser turns any input string into an Abstract Syntax Tree of nodes as if the input were YAML. This level of the API has not been designed to be particularly user-friendly for external users, but it is fast, robust, and not dependent on the rest of the library.
+For ease of implementation and to provide better error handling and reporting, the lowest level of the library's parser turns any input string into a [**Concrete Syntax Tree**](https://en.wikipedia.org/wiki/Concrete_syntax_tree) of nodes as if the input were YAML. This level of the API has not been designed to be particularly user-friendly for external users, but it is fast, robust, and not dependent on the rest of the library.
 
-## parseAST
+## parseCST
 
 ```js
-import parseAST from 'yaml/parse-ast'
+import parseCST from 'yaml/parse-cst'
 
-const ast = parseAST(`
+const cst = parseCST(`
 sequence: [ one, two, ]
 mapping: { sky: blue, sea: green }
 ---
@@ -19,37 +19,37 @@ mapping: { sky: blue, sea: green }
   foo : bar
 `)
 
-ast[0]            // first document, containing a map with two keys
+cst[0]            // first document, containing a map with two keys
   .contents[0]    // document contents (as opposed to directives)
   .items[3].node  // the last item, a flow map
   .items[3]       // the fourth token, parsed as a plain value
   .strValue       // 'blue'
 
-ast[1]            // second document, containing a sequence
+cst[1]            // second document, containing a sequence
   .contents[0]    // document contents (as opposed to directives)
   .items[1].node  // the second item, a block value
   .strValue       // 'Block scalar\n'
 ```
 
-#### `parseAST(string): ASTDocument[]`
+#### `parseCST(string): CSTDocument[]`
 
-The AST parser will not produce an AST that is necessarily valid YAML, and in particular its representation of collections of items is expected to undergo further processing and validation. The parser should never throw errors, but may include them as a value of the relevant node. On the other hand, if you feed it garbage, you'll likely get a garbage AST as well.
+The CST parser will not produce a CST that is necessarily valid YAML, and in particular its representation of collections of items is expected to undergo further processing and validation. The parser should never throw errors, but may include them as a value of the relevant node. On the other hand, if you feed it garbage, you'll likely get a garbage CST as well.
 
-The public API of the library is a single function which returns an array of parsed AST documents. The array and its contained nodes override the default `toString` method, each returning a YAML string representation of its contents.
+The public API of the library is a single function which returns an array of parsed CST documents. The array and its contained nodes override the default `toString` method, each returning a YAML string representation of its contents.
 
-If a node has its `value` set, that will be used when re-stringifying. Care should be taken when modifying the AST, as no error checks are included to verify that the resulting YAML is valid, or that e.g. indentation levels aren't broken. In other words, this is an engineering tool and you may hurt yourself. If you're looking to generate a brand new YAML document, you should probably not be using this API directly.
+If a node has its `value` set, that will be used when re-stringifying. Care should be taken when modifying the CST, as no error checks are included to verify that the resulting YAML is valid, or that e.g. indentation levels aren't broken. In other words, this is an engineering tool and you may hurt yourself. If you're looking to generate a brand new YAML document, you should probably not be using this API directly.
 
-For more usage examples and AST trees, have a look through the [extensive test suite](https://github.com/eemeli/yaml/tree/master/__tests__/ast) included in the project's repository.
+For more usage examples and CST trees, have a look through the [extensive test suite](https://github.com/eemeli/yaml/tree/master/__tests__/cst) included in the project's repository.
 
 <h3 style="clear:both">Error detection</h3>
 
 ```js
 import YAML from 'yaml'
-import parseAST from 'yaml/parse-ast'
+import parseCST from 'yaml/parse-cst'
 
-const ast = parseAST('this: is: bad YAML')
+const cst = parseCST('this: is: bad YAML')
 
-ast[0].contents[0]  // Note: Simplified for clarity
+cst[0].contents[0]  // Note: Simplified for clarity
 // { type: 'MAP',
 //   items: [
 //     { type: 'PLAIN', strValue: 'this' },
@@ -62,7 +62,7 @@ ast[0].contents[0]  // Note: Simplified for clarity
 //             node: { type: 'PLAIN', strValue: 'bad YAML' } } ] } } ] }
 
 const doc = new YAML.Document()
-doc.parse(ast[0])
+doc.parse(cst[0])
 doc.errors
 // [ {
 //   name: 'YAMLSemanticError',
@@ -77,9 +77,9 @@ doc.contents.items[0].value.items[0].value.value
 // 'bad YAML'
 ```
 
-While the YAML spec considers e.g. block collections within a flow collection to be an error, this error will not be detected by the AST parser. For complete validation, you will need to parse the AST into a `YAML.Document`. If the document contains errors, they will be included in the document's `errors` array, and each error will will contain a `source` reference to the AST node where it was encountered. Do note that even if an error is encountered, the document contents might still be available. In such a case, the error will be a [`YAMLSemanticError`](#yamlsemanticerror) rather than a [`YAMLSyntaxError`](#yamlsyntaxerror).
+While the YAML spec considers e.g. block collections within a flow collection to be an error, this error will not be detected by the CST parser. For complete validation, you will need to parse the CST into a `YAML.Document`. If the document contains errors, they will be included in the document's `errors` array, and each error will will contain a `source` reference to the CST node where it was encountered. Do note that even if an error is encountered, the document contents might still be available. In such a case, the error will be a [`YAMLSemanticError`](#yamlsemanticerror) rather than a [`YAMLSyntaxError`](#yamlsyntaxerror).
 
-## AST Nodes
+## CST Nodes
 
 > This section uses Flow-ish notation, so `+` as a prefix indicates a read-only getter property.
 
@@ -91,9 +91,9 @@ class Range {
 }
 ```
 
-**Note**: The `Node`, `Scalar` and other values referred to in this section are the AST representations of said objects, and are not the same as those used in preceding parts.
+**Note**: The `Node`, `Scalar` and other values referred to in this section are the CST representations of said objects, and are not the same as those used in preceding parts.
 
-Actual values in the AST nodes are stored as `start`, `end` indices of the input string. This allows for memory consumption to be minimised by making string generation really lazy.
+Actual values in the CST nodes are stored as `start`, `end` indices of the input string. This allows for memory consumption to be minimised by making string generation really lazy.
 
 <h3 style="clear:both">Node</h3>
 
@@ -127,7 +127,7 @@ type ContentNode =
   Comment | Alias | Scalar | Map | Seq | FlowCollection
 ```
 
-Each node in the AST extends a common ancestor `Node`. Additional undocumented properties are available, but are likely only useful during parsing.
+Each node in the CST extends a common ancestor `Node`. Additional undocumented properties are available, but are likely only useful during parsing.
 
 <h3 style="clear:both">Scalars</h3>
 
@@ -206,7 +206,7 @@ class Directive extends Node {
   +tag: null
 }
 
-class ASTDocument extends Node {
+class CSTDocument extends Node {
   directives: Array<Comment | Directive>,
   contents: Array<ContentNode>,
   type: 'DOCUMENT',
@@ -216,4 +216,4 @@ class ASTDocument extends Node {
 }
 ```
 
-The AST tree of a valid YAML document should have a single non-`Comment` `ContentNode` in its `contents` array. Multiple values indicates that the input is malformed in a way that made it impossible to determine the proper structure of the document.
+The CST tree of a valid YAML document should have a single non-`Comment` `ContentNode` in its `contents` array. Multiple values indicates that the input is malformed in a way that made it impossible to determine the proper structure of the document.
