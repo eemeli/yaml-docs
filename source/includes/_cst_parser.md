@@ -81,7 +81,7 @@ While the YAML spec considers e.g. block collections within a flow collection to
 
 ## CST Nodes
 
-> This section uses Flow-ish notation, so `+` as a prefix indicates a read-only getter property.
+> Node type definitions use Flow-ish notation, so `+` as a prefix indicates a read-only getter property.
 
 ```js
 class Range {
