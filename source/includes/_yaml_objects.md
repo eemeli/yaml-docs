@@ -94,16 +94,16 @@ String(doc)
 
 A YAML Document will need to include a schema definition. Its constructor may thefore be called with a ready `schema`, or the `options` (see [`YAML.defaultOptions`](#yaml-defaultoptions)) required for its construction.
 
-| Member        | Type         | Description                                                                                                                                  |
-| ------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| commentBefore | `string?`    | A comment at the very beginning of the document.                                                                                             |
-| comment       | `string?`    | A comment at the end of the document.                                                                                                        |
-| contents      | `Node | any` | The document contents.                                                                                                                       |
-| errors        | `Error[]`    | Errors encountered during parsing.                                                                                                           |
-| schema        | `Schema`     | The schema used with the document.                                                                                                           |
-| tagPrefixes   | `Prefix[]`   | Array of prefixes; each will have a string `handle` that starts and ends with `!` and a string `prefix` that the handle will be replaced by. |
-| version       | `string?`    | The parsed version of the source document; if true-ish, stringified output will include a `%YAML 1.2` directive.                             |
-| warnings      | `Error[]`    | Warnings encountered during parsing.                                                                                                         |
+| Member        | Type                            | Description                                                                                                                                  |
+| ------------- | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| commentBefore | `string?`                       | A comment at the very beginning of the document.                                                                                             |
+| comment       | `string?`                       | A comment at the end of the document.                                                                                                        |
+| contents      | [`Node`](#ast-nodes)&vert;`any` | The document contents.                                                                                                                       |
+| errors        | `Error[]`                       | Errors encountered during parsing.                                                                                                           |
+| schema        | `Schema`                        | The schema used with the document.                                                                                                           |
+| tagPrefixes   | `Prefix[]`                      | Array of prefixes; each will have a string `handle` that starts and ends with `!` and a string `prefix` that the handle will be replaced by. |
+| version       | `string?`                       | The parsed version of the source document; if true-ish, stringified output will include a `%YAML 1.2` directive.                             |
+| warnings      | `Error[]`                       | Warnings encountered during parsing.                                                                                                         |
 
 The Document members are all modifiable, though it's unlikely that you'll have reason to change `errors`, `schema` or `warnings`. In particular you may be interested in both reading and writing **`contents`**. Although `YAML.parseDocuments()` will leave it with `Map`, `Seq`, `Scalar` or `null` contents, it can be set to anything.
 
@@ -147,6 +147,7 @@ String(doc)
 ```
 
 #### `YAML.createNode(value): Map | Seq | Scalar`
+
 #### `YAML.createNode(value, false): Map | Seq | string | number | boolean | null`
 
 `YAML.createNode` recursively turns objects into `Map` and arrays to `Seq` [collections](#collections). If the second `wrapScalars` argument is undefined or `true`, it also wraps plain values in `Scalar` objects. Its primary use is to enable attaching comments or other metadata to a value, or to otherwise exert more fine-grained control over the stringified output.
