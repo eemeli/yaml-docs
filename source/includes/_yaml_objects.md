@@ -96,6 +96,7 @@ A YAML Document will need to include a schema definition. Its constructor may th
 
 | Member        | Type                            | Description                                                                                                                                  |
 | ------------- | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| anchors       | [`Anchors`](#anchors)           | Anchors associated with the document's nodes; also provides alias & merge node creators.                                                     |
 | commentBefore | `string?`                       | A comment at the very beginning of the document.                                                                                             |
 | comment       | `string?`                       | A comment at the end of the document.                                                                                                        |
 | contents      | [`Node`](#ast-nodes)&vert;`any` | The document contents.                                                                                                                       |
@@ -226,6 +227,91 @@ doc.toString()
 To construct a `Seq` or `Map`, use [`YAML.createNode()`](#yaml-createnode) with array or object input, or create the collections directly by importing the classes from `yaml/seq` and `yaml/map`.
 
 Once created, normal array operations may be used to modify the `items` array. New `Pair` objects may created by importing the class from `yaml/pair` and using its `new Pair(key, value)` constructor. Note in particular that this is required to create non-`string` keys.
+
+## Anchors and Alias Nodes
+
+```js
+class Alias extends Node {
+  source: Scalar | Map | Seq
+}
+
+class Merge extends Pair {
+  key: Scalar('<<'),      // defined by the type specification
+  value: Seq<Alias(Map)>  // stringified as *A if length = 1
+}
+```
+
+`Alias` nodes provide a way to include a single node in multiple places in a document; the `source` of an alias node must be a preceding node in the document. Circular references are supported at the AST level, but cannot be JSON-ified.
+
+`Merge` nodes are not a core YAML 1.2 feature, but are defined as a [YAML 1.1 type](http://yaml.org/type/merge.html). They are only valid directly within a `Map#items` array and must contain one or more `Alias` nodes that themselves refer to `Map` nodes. When the surrounding map is resolved as a plain JS object, the key-value pairs of the aliased maps will be included in the object. Earlier `Alias` nodes override later ones, as do values set in the object directly.
+
+<h3 id="anchors" style="clear:both">Anchors</h3>
+
+```js
+const src = '[{ a: A }, { b: B }, { c: C }]'
+const doc = YAML.parseDocuments(src)[0]
+const { anchors, contents } = doc
+const [a, b] = contents.items
+anchors.setAnchor(a.items[0].value) // 'a1'
+anchors.setAnchor(b.items[0].value) // 'a2'
+anchors.setAnchor(null, 'a1') // 'a1'
+anchors.getName(a) // undefined
+anchors.getNode('a2') // { value: 'B', range: [ 16, 18 ] }
+String(doc)
+// - a: A
+// - b: &a2 B
+
+const alias = anchors.createAlias(a, 'AA')
+contents.items.push(alias)
+doc.toJSON()
+// [ { a: 'A' }, { b: 'B' }, { a: 'A' } ]
+String(doc)
+// - &AA
+//   a: A
+// - b: &a2 B
+// - *AA
+
+const merge = anchors.createMergePair(alias)
+b.items.push(merge)
+doc.toJSON()
+// [ { a: 'A' }, { b: 'B', a: 'A' }, { a: 'A' } ]
+String(doc)
+// - &AA
+//   a: A
+// - b: &a2 B
+//   <<: *AA
+// - *AA
+
+// This creates a circular reference
+merge.value.items.push(anchors.createAlias(b))
+doc.toJSON() // [RangeError: Maximum call stack size exceeded]
+String(doc)
+// - &AA
+//   a: A
+// - &a3
+//   b: &a2 B
+//   <<:
+//     - *AA
+//     - *a3
+// - *AA
+```
+
+#### `YAML.Document#anchors`
+
+| Method                                 | Return type | Description                                                                                                                |
+| -------------------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------- |
+| createAlias(node: Node, name?: string) | `Alias`     | Create a new `Alias` node, adding the required anchor for `node`. If `name` is empty, a new anchor name will be generated. |
+| createMergePair(...Node)               | `Merge`     | Create a new `Merge` node with the given source nodes. Non-`Alias` sources will be automatically wrapped.                  |
+| getName(node: Node)                    | `string?`   | The anchor name associated with `node`, if set.                                                                            |
+| getNode(name: string)                  | `Node?`     | The node associated with the anchor `name`, if set.                                                                        |
+| newName(prefix: string)                | `string`    | Find an available anchor name with the given `prefix` and a numerical suffix.                                              |
+| setAnchor(node: Node, name?: string)   | `string?`   | Associate an anchor with `node`. If `name` is empty, a new name will be generated.                                         |
+
+The constructors for `Alias` and `Merge` are not directly exported by the library, as they depend on the document's anchors; instead you'll need to use **`createAlias(node, name)`** and **`createMergePair(...sources)`**. You should make sure to only add alias and merge nodes to the document after the nodes to which they refer, or the document's YAML stringification will fail.
+
+It is valid to have an anchor associated with a node even if it has no aliases. `yaml` will not allow you to associate the same name with more than one node, even though this is allowed by the YAML spec (all but the last instance will have numerical suffixes added). To add or reassign an anchor, use **`setAnchor(node, name)`**. The second parameter is optional, and if left out either the pre-existing anchor name of the node will be used, or a new one generated. To remove an anchor, use `setAnchor(null, name)`. The function will return the new anchor's name, or `null` if both of its arguments are `null`.
+
+While the `merge` option needs to be true to parse `Merge` nodes as such, this is not required during stringification.
 
 ## Comments
 
