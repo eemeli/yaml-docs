@@ -103,10 +103,12 @@ A YAML Document will need to include a schema definition. Its constructor may th
 | errors        | `Error[]`                       | Errors encountered during parsing.                                                                                                           |
 | schema        | `Schema`                        | The schema used with the document.                                                                                                           |
 | tagPrefixes   | `Prefix[]`                      | Array of prefixes; each will have a string `handle` that starts and ends with `!` and a string `prefix` that the handle will be replaced by. |
-| version       | `string?`                       | The parsed version of the source document; if true-ish, stringified output will include a `%YAML 1.2` directive.                             |
+| version       | `string?`                       | The parsed version of the source document; if true-ish, stringified output will include a `%YAML` directive.                                 |
 | warnings      | `Error[]`                       | Warnings encountered during parsing.                                                                                                         |
 
 The Document members are all modifiable, though it's unlikely that you'll have reason to change `errors`, `schema` or `warnings`. In particular you may be interested in both reading and writing **`contents`**. Although `YAML.parseDocuments()` will leave it with `Map`, `Seq`, `Scalar` or `null` contents, it can be set to anything.
+
+During stringification, a document with a true-ish `version` value will include a `%YAML` directive; the version number will be set to `1.2` unless the `yaml-1.1` schema is in use.
 
 | Method                       | Return type | Description                                                                                    |
 | ---------------------------- | ----------- | ---------------------------------------------------------------------------------------------- |

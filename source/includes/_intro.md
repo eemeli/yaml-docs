@@ -16,7 +16,7 @@ import YAML from 'yaml'
 const YAML = require('yaml').default
 ```
 
-`yaml` is a JavaScript parser and stringifier for [YAML](http://yaml.org/), a human friendly data serialization standard. It supports almost all aspects of the 1.2 version of the spec for both parsing and stringifying data, as well as a few of the most common extensions.
+`yaml` is a JavaScript parser and stringifier for [YAML](http://yaml.org/), a human friendly data serialization standard. It supports all aspects of the 1.2 version of the spec for both parsing and stringifying data, as well as supporting YAML 1.1 data types.
 
 The library is released under the ISC open source license, and the code is [available on GitHub](https://github.com/eemeli/yaml/). It has no external dependencies, and is usable in both browser and node environments.
 
