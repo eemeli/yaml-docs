@@ -94,7 +94,7 @@ const options = { tags: [timestamp] }
 YAML.parse('2001-12-15 2:59:43', options)
 // '2001-12-15T02:59:43.000Z'
 
-const doc = YAML.parseDocuments('2001-12-15 2:59:43', options)[0]
+const doc = YAML.parseDocument('2001-12-15 2:59:43', options)
 doc.contents.value.toDateString()
 // 'Sat Dec 15 2001'
 ```

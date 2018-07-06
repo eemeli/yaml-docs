@@ -2,15 +2,15 @@
 
 In order to work with YAML features not directly supported by native JavaScript data types, such as comments and non-string keys, `yaml` provides the `YAML.Document` API.
 
-## YAML.parseDocuments
+## Parsing Documents
 
 ```js
 import fs from 'fs'
 import YAML from 'yaml'
 
 const file = fs.readFileSync('./file.yml', 'utf8')
-const docs = YAML.parseDocuments(file)
-docs[0].contents
+const doc = YAML.parseDocument(file)
+doc.contents
 // YAMLMap {
 //   items:
 //    [ Pair {
@@ -43,15 +43,23 @@ docs[0].contents
 //   range: [ 0, 180 ] }
 ```
 
-#### `YAML.parseDocuments(str, options = {}): YAML.Document[]`
+#### `YAML.parseDocument(str, options = {}): YAML.Document`
 
-When parsing YAML, the input string `str` is considered as a stream of documents separated from each other by `...` document end marker lines. `YAML.parseDocuments` (used internally by `YAML.parse`) will return an array of `Document` objects that allow these documents to be parsed and manipulated with more control.
+Parses a single `YAML.Document` from the input `str`; used internally by `YAML.parse`. Will throw an error if `str` contains more than one document. See [Options](#options) for more information on the second parameter.
 
-This function should never throw; errors and warnings are included in the documents' `errors` and `warnings` arrays. In particular, if `errors` is not empty it's likely that the document's parsed `contents` are not entirely correct.
+<br/>
 
-The returned documents' `contents` will always consist of `Scalar`, `Map`, `Seq` or `null` values.
+#### `YAML.parseAllDocuments(str, options = {}): YAML.Document[]`
 
-## YAML.Document
+When parsing YAML, the input string `str` may consist of a stream of documents separated from each other by `...` document end marker lines. `YAML.parseAllDocuments` will return an array of `Document` objects that allow these documents to be parsed and manipulated with more control.
+
+<br/>
+
+These functions should never throw; errors and warnings are included in the documents' `errors` and `warnings` arrays. In particular, if `errors` is not empty it's likely that the document's parsed `contents` are not entirely correct.
+
+The `contents` of a parsed document will always consist of `Scalar`, `Map`, `Seq` or `null` values.
+
+## Creating Documents
 
 ```js
 const doc = new YAML.Document()
@@ -92,7 +100,7 @@ String(doc)
 
 #### `new YAML.Document(schema)`
 
-A YAML Document will need to include a schema definition. Its constructor may thefore be called with a ready `schema`, or the `options` (see [`YAML.defaultOptions`](#yaml-defaultoptions)) required for its construction.
+A YAML Document will need to include a schema definition. Its constructor may thefore be called with a ready `schema`, or the `options` (see [Options](#options)) required for its construction.
 
 | Member        | Type                            | Description                                                                                                                                  |
 | ------------- | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -106,7 +114,7 @@ A YAML Document will need to include a schema definition. Its constructor may th
 | version       | `string?`                       | The parsed version of the source document; if true-ish, stringified output will include a `%YAML` directive.                                 |
 | warnings      | `Error[]`                       | Warnings encountered during parsing.                                                                                                         |
 
-The Document members are all modifiable, though it's unlikely that you'll have reason to change `errors`, `schema` or `warnings`. In particular you may be interested in both reading and writing **`contents`**. Although `YAML.parseDocuments()` will leave it with `Map`, `Seq`, `Scalar` or `null` contents, it can be set to anything.
+The Document members are all modifiable, though it's unlikely that you'll have reason to change `errors`, `schema` or `warnings`. In particular you may be interested in both reading and writing **`contents`**. Although `YAML.parseDocument()` and `YAML.parseAllDocuments()` will leave it with `Map`, `Seq`, `Scalar` or `null` contents, it can be set to anything.
 
 During stringification, a document with a true-ish `version` value will include a `%YAML` directive; the version number will be set to `1.2` unless the `yaml-1.1` schema is in use.
 
@@ -126,7 +134,7 @@ For a plain JavaScript representation of the document, **`toJSON()`** is your fr
 
 Conversely, to stringify a document as YAML, use **`toString()`**. This will also be called by `String(doc)`. This method will throw if the `errors` array is not empty.
 
-## YAML.createNode
+## Creating Nodes
 
 ```js
 const seq = YAML.createNode(['some', 'values', { balloons: 99 }])
@@ -251,7 +259,7 @@ class Merge extends Pair {
 
 ```js
 const src = '[{ a: A }, { b: B }, { c: C }]'
-const doc = YAML.parseDocuments(src)[0]
+const doc = YAML.parseDocument(src)
 const { anchors, contents } = doc
 const [a, b] = contents.items
 anchors.setAnchor(a.items[0].value) // 'a1'
@@ -318,13 +326,13 @@ While the `merge` option needs to be true to parse `Merge` nodes as such, this i
 ## Comments
 
 ```js
-const doc = YAML.parseDocuments(`
+const doc = YAML.parseDocument(`
 # This is YAML.
 ---
 it has:
   - an array
   - of values
-`)[0]
+`)
 
 doc.toJSON()
 // { 'it has': [ 'an array', 'of values' ] }
