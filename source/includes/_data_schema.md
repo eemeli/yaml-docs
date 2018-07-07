@@ -48,13 +48,14 @@ YAML.Document.defaults
 //   '1.2': { merge: false, schema: 'core' } }
 ```
 
-| Option        | Type                                                             | Description                                                                                     |
-| ------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| keepNodeTypes | `boolean`                                                        | Store the original node type when parsing documents. By default `true`.                         |
-| merge         | `boolean`                                                        | Enable support for `<<` merge keys.                                                             |
-| schema        | `'core'` &vert; `'failsafe'` &vert; `'json'` &vert; `'yaml-1.1'` | The base schema to use. By default `'core'` for YAML 1.2 and `'yaml-1.1'` for earlier versions. |
-| tags          | `Tag[]` &vert; `function`                                        | Array of additional (custom) tags to include in the schema                                      |
-| version       | `string`                                                         | The YAML version used by documents without a `%YAML` directive. By default `'1.2'`.             |
+| Option          | Type                                                             | Description                                                                                                                                          |
+| --------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| keepNodeTypes   | `boolean`                                                        | Store the original node type when parsing documents. By default `true`.                                                                              |
+| keepBlobsInJSON | `boolean`                                                        | Allow non-JSON JavaScript objects to remain in the `toJSON` output. Relevant with the YAML 1.1 `!!timestamp` and `!!binary` tags. By default `true`. |
+| merge           | `boolean`                                                        | Enable support for `<<` merge keys.                                                                                                                  |
+| schema          | `'core'` &vert; `'failsafe'` &vert; `'json'` &vert; `'yaml-1.1'` | The base schema to use. By default `'core'` for YAML 1.2 and `'yaml-1.1'` for earlier versions.                                                      |
+| tags            | `Tag[]` &vert; `function`                                        | Array of additional (custom) tags to include in the schema                                                                                           |
+| version         | `string`                                                         | The YAML version used by documents without a `%YAML` directive. By default `'1.2'`.                                                                  |
 
 ### Schemas
 
@@ -155,14 +156,13 @@ picture: !!binary |
   octal: 12,
   sexagesimal: 12345,
   picture:
-   { type: 'Buffer',
-     data:
-      [ 71, 73, 70, 56, 57, 97, 12, 0, 12, 0, 132, 0, 0,
-        255, 255, 247, 245, 245, 238, 233, 233, 229, 102,
-        102, 102, 0, 0, 0, 231, 231, 231, 94, 94, 94, 243,
-        243, 237, 142, 142, 142, 224, 224, 224, 159, 159,
-        159, 147, 147, 147, 167, 167, 167, 158, 158, 158,
-        105, 94, 16, 39, 32, 130, 10, 1, 0, 59 ] } }
+   Buffer [Uint8Array] [
+     71, 73, 70, 56, 57, 97, 12, 0, 12, 0, 132, 0, 0,
+     255, 255, 247, 245, 245, 238, 233, 233, 229, 102,
+     102, 102, 0, 0, 0, 231, 231, 231, 94, 94, 94, 243,
+     243, 237, 142, 142, 142, 224, 224, 224, 159, 159,
+     159, 147, 147, 147, 167, 167, 167, 158, 158, 158,
+     105, 94, 16, 39, 32, 130, 10, 1, 0, 59 ] }
 ```
 
 The most significant difference between YAML 1.1 and YAML 1.2 is the introduction of the core data schema as the recommended default, replacing the YAML 1.1 type library:

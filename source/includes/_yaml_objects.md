@@ -130,7 +130,7 @@ During stringification, a document with a true-ish `version` value will include 
 
 To define a tag prefix to use when stringifying, use **`setTagPrefix(handle, prefix)`** rather than setting a value directly in `tagPrefixes`. This will guarantee that the `handle` is valid (by throwing an error), and will overwrite any previous definition for the `handle`. Use an empty `prefix` value to remove a prefix.
 
-For a plain JavaScript representation of the document, **`toJSON()`** is your friend. Do note that it will call `toJSON()` methods recursively on the contents, so e.g. `Date` objects will also be stringified.
+For a plain JavaScript representation of the document, **`toJSON()`** is your friend. By default the values wrapped in scalar nodes will not be forced to JSON, so e.g. a `!!timestamp` will remain a `Date` in the output. To change this behaviour and enforce JSON values only, set the [`keepBlobsInJSON` option](#options) to `false`.
 
 Conversely, to stringify a document as YAML, use **`toString()`**. This will also be called by `String(doc)`. This method will throw if the `errors` array is not empty.
 
