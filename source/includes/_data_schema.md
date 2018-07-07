@@ -1,6 +1,6 @@
 # Data Schema
 
-A YAML schema is a combination of a set of tags and a mechanism for resolving non-specific tags, i.e. values that do not have an explicit tag such as `!!int`. The default schema is the `'core'` schema, which is the recommended one for YAML 1.2. For YAML 1.1 documents the default is `'yaml-1.1'`.
+A YAML schema is a combination of a set of tags and a mechanism for resolving non-specific tags, i.e. values that do not have an explicit tag such as `!!int`. The default schema is the `'core'` schema, which is the recommended one for YAML 1.2. For YAML 1.0 and YAML 1.1 documents the default is `'yaml-1.1'`.
 
 ## Tags
 
@@ -28,20 +28,49 @@ During parsing, unresolved tags should not result in errors (though they will be
 
 In order to have `yaml` provide you with automatic parsing and stringification of non-standard data types, it will need to be configured with a suitable tag object. For an example of what's required, the optional [`!!timestamp`](https://github.com/eemeli/yaml/blob/master/src/schema/_timestamp.js) and [`!!binary`](https://github.com/eemeli/yaml/blob/master/src/schema/_binary.js) tags should provide decent examples.
 
+The YAML 1.0 tag specification is [slightly different](#changes-from-yaml-1-0-to-1-1) from that used in later versions, which is described here.
+
 ## Options
-
-```js
-YAML.defaultOptions
-// { tags: null, version: '1.2' }
-
-YAML.Document.defaults
-// { '1.1': { schema: 'yaml-1.1', merge: true },
-//   '1.2': { schema: 'core', merge: false } }
-```
 
 #### `YAML.defaultOptions`
 
-These values set the default options used by `YAML` methods, and may be overridden by the `options` arguments of document-specific functions. The default values depend on the value of `version` (`'1.2'` if not set), which may be set either in the `options` or in a `%YAML` document directive.
+#### `YAML.Document.defaults`
+
+`yaml` defines options in three places: as an argument of parse, create and stringify calls, in the values of `YAML.defaultOptions`, and in the version-dependent `YAML.Document.defaults` object. Values set in `YAML.defaultOptions` override version-dependent defaults, and argument options override both. The `version` option value (`'1.2'` by default) and may be overridden by any document-specific `%YAML` directive.
+
+```js
+YAML.defaultOptions
+// { keepNodeTypes: true, version: '1.2' }
+
+YAML.Document.defaults
+// { '1.0': { merge: true, schema: 'yaml-1.1' },
+//   '1.1': { merge: true, schema: 'yaml-1.1' },
+//   '1.2': { merge: false, schema: 'core' } }
+```
+
+| Option        | Type                                                             | Description                                                                                     |
+| ------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| keepNodeTypes | `boolean`                                                        | Store the original node type when parsing documents. By default `true`.                         |
+| merge         | `boolean`                                                        | Enable support for `<<` merge keys.                                                             |
+| schema        | `'core'` &vert; `'failsafe'` &vert; `'json'` &vert; `'yaml-1.1'` | The base schema to use. By default `'core'` for YAML 1.2 and `'yaml-1.1'` for earlier versions. |
+| tags          | `Tag[]` &vert; `function`                                        | Array of additional (custom) tags to include in the schema                                      |
+| version       | `string`                                                         | The YAML version used by documents without a `%YAML` directive. By default `'1.2'`.             |
+
+### Schemas
+
+```js
+YAML.parse('3') // 3
+YAML.parse('3', { schema: 'failsafe' }) // '3'
+
+YAML.parse('No') // 'No'
+YAML.parse('No', { schema: 'json' }) // SyntaxError: Unresolved plain scalar "No"
+YAML.parse('No', { schema: 'yaml-1.1' }) // false
+YAML.parse('No', { version: '1.1' }) // false
+```
+
+Aside from defining the language structure, the YAML 1.2 spec defines a number of different **schemas** that may be used. The default is the [core schema](http://yaml.org/spec/1.2/spec.html#id2804923), which is the most common one. The [JSON schema](http://yaml.org/spec/1.2/spec.html#id2803231) is effectively the minimum schema required to parse JSON; both it and the core schema are supersets of the minimal [failsafe schema](http://yaml.org/spec/1.2/spec.html#id2802346).
+
+The `yaml-1.1` schema matches the more liberal [YAML 1.1 types](http://yaml.org/type/) (also used by YAML 1.0), including binary data and timestamps as distinct tags as well as accepting greater variance in scalar values (with e.g. `'No'` being parsed as `false` rather than a string value). The `!!value` and `!!yaml` types are not supported.
 
 ```js
 YAML.defaultOptions.merge = true
@@ -57,28 +86,9 @@ mergeResult.target
 // { a: 1, b: 'base' }
 ```
 
-| Option  | YAML&nbsp;1.1 | YAML&nbsp;1.2 | Description                                                                         |
-| ------- | ------------- | ------------- | ----------------------------------------------------------------------------------- |
-| merge   | `true`        | `false`       | Enable support for `<<` merge keys.                                                 |
-| schema  | `'yaml-1.1'`  | `'core'`      | The base schema to use, one of `'core'`, `'failsafe'`, `'json'` or `'yaml-1.1'`.    |
-| tags    | `null`        | `null`        | Array of additional tags to include in the schema                                   |
-| version |               | `'1.2'`       | The YAML version used by documents without a `%YAML` directive. Default is `'1.2'`. |
+**Merge** keys are a [YAML 1.1 feature](http://yaml.org/type/merge.html) that is not a part of the 1.2 spec. To use a merge key, assign an alias node or an array of alias nodes as the value of a `<<` key in a mapping.
 
-**Merge** keys are a [YAML 1.1 feature](http://yaml.org/type/merge.html) that is not officially a part of the 1.2 spec. To use a merge key, assign an alias node or an array of alias nodes as the value of a `<<` key in a mapping.
-
-```js
-YAML.parse('3') // 3
-YAML.parse('3', { schema: 'failsafe' }) // '3'
-
-YAML.parse('No') // 'No'
-YAML.parse('No', { schema: 'json' }) // SyntaxError: Unresolved plain scalar "No"
-YAML.parse('No', { schema: 'yaml-1.1' }) // false
-YAML.parse('No', { version: '1.1' }) // false
-```
-
-Aside from defining the language structure, the YAML 1.2 spec defines a number of different **schemas** that may be used. The default is the [core schema](http://yaml.org/spec/1.2/spec.html#id2804923), which is the most common one. The [JSON schema](http://yaml.org/spec/1.2/spec.html#id2803231) is effectively the minimum schema required to parse JSON; both it and the core schema are supersets of the minimal [failsafe schema](http://yaml.org/spec/1.2/spec.html#id2802346).
-
-The `yaml-1.1` schema matches the more liberal [YAML 1.1 types](http://yaml.org/type/), including binary data and timestamps as distinct tags as well as accepting greater variance in scalar values (with e.g. `'No'` being parsed as `false` rather than a string value). The `!!value` and `!!yaml` types are not supported.
+<h3 style="clear:both">Custom Tags</h3>
 
 ```js
 import { timestamp } from 'yaml/types/timestamp'
@@ -99,7 +109,27 @@ doc.contents.value.toDateString()
 // 'Sat Dec 15 2001'
 ```
 
-The easiest way to extend a schema is by defining the additional **tags** that you wish to support. For further customisation, `tags` may be a function that'll then be passed the named schema as an argument, and may add to or otherwise modify it as necessary.
+The easiest way to extend a schema is by defining the additional **tags** that you wish to support. For further customisation, `tags` may also be a function `(Tag[]) => (Tag[])` that may modify the schema's base tag array.
+
+<h3 style="clear:both">Tag Stringifier Options</h3>
+
+```js
+const doc = YAML.parseDocument('this is: null')
+doc.contents.items[0]
+// Pair {
+//   key: Scalar { value: 'this is', range: [ 0, 7 ], type: 'PLAIN' },
+//   value: Scalar { value: null, range: [ 9, 13 ], type: 'PLAIN' } }
+
+const nullTag = doc.schema.schema.find(
+  ({ tag }) => tag === 'tag:yaml.org,2002:null'
+)
+nullTag.options.nullStr = '~'
+
+String(doc)
+// this is: ~
+```
+
+Some of the tags (in particular `!!null` and `!!str`) support additional customisations for their YAML stringification. To adjust those, modify the `options` object of the appropriate tag.
 
 ## Version Differences
 
