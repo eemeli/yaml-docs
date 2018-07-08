@@ -185,30 +185,43 @@ For scalar values, the `tag` will not be set unless it was explicitly defined in
 
 ```js
 class Scalar extends Node {
+  format: 'BIN' | 'HEX' | 'OCT' | 'TIME' | undefined,
+      // By default (undefined), numbers use decimal notation.
+      // The YAML 1.2 core schema only supports 'HEX' and 'OCT'.
+  type:
+    'BLOCK_FOLDED' | 'BLOCK_LITERAL' | 'PLAIN' |
+    'QUOTE_DOUBLE' | 'QUOTE_SINGLE' | undefined,
   value: any
 }
 ```
 
 A parsed document's contents will have all of its non-object values wrapped in `Scalar` objects, which themselves may be in some hierarchy of `Map` and `Seq` collections. However, this is not a requirement for the document's stringification, which is rather tolerant regarding its input values, and will use [`YAML.createNode`](#yaml-createnode) when encountering an unwrapped value.
 
+When stringifying, the node `type` will be taken into account by `!!str` and `!!binary` values, and ignored by other scalars. On the other hand, `!!int` and `!!float` stringifiers will take `format` into account.
+
 <h3 id="collections" style="clear:both">Collections</h3>
 
 ```js
 class Pair extends Node {
   key: Node | any,    // key and value are always Node or null
-  value: Node | any   // when parsed, but can be set to anything
+  value: Node | any,  // when parsed, but can be set to anything
+  type: 'PAIR'
 }
 
 class Map extends Node {
-  items: Array<Pair>
+  items: Array<Pair>,
+  type: 'FLOW_MAP' | 'MAP' | undefined
 }
 
 class Seq extends Node {
-  items: Array<Node | any>
+  items: Array<Node | any>,
+  type: 'FLOW_SEQ' | 'SEQ' | undefined
 }
 ```
 
 Within a YAML document, two forms of collections are supported: sequential `Seq` collections and key-value `Map` collections. The JavaScript representations of these collections both have an `items` array, which may (`Seq`) or must (`Map`) consist of `Pair` objects that contain a `key` and a `value` of any type, including `null`. The `items` array of a `Seq` object may contain values of any type.
+
+When stringifying collections, by default block notation will be used. Flow notation will be selected if `type` is `FLOW_MAP` or `FLOW_SEQ`, the collection is within a surrounding flow collection, or if the collection is in an implicit key.
 
 <h4 style="clear:both"><code>new Map(), new Seq(), new Pair(key, value)</code></h4>
 
@@ -242,12 +255,14 @@ Once created, normal array operations may be used to modify the `items` array. N
 
 ```js
 class Alias extends Node {
-  source: Scalar | Map | Seq
+  source: Scalar | Map | Seq,
+  type: 'ALIAS'
 }
 
 class Merge extends Pair {
   key: Scalar('<<'),      // defined by the type specification
-  value: Seq<Alias(Map)>  // stringified as *A if length = 1
+  value: Seq<Alias(Map)>, // stringified as *A if length = 1
+  type: 'MERGE_PAIR'
 }
 ```
 
