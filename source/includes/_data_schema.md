@@ -92,6 +92,7 @@ mergeResult.target
 <h3 style="clear:both">Custom Tags</h3>
 
 ```js
+import { binary } from 'yaml/types/binary'
 import { timestamp } from 'yaml/types/timestamp'
 
 YAML.parse('!!timestamp 2001-12-15 2:59:43')
@@ -100,7 +101,7 @@ YAML.parse('!!timestamp 2001-12-15 2:59:43')
 //   falling back to tag:yaml.org,2002:str
 // '2001-12-15 2:59:43'
 
-const options = { tags: [timestamp] }
+const options = { tags: [binary, timestamp] }
 
 YAML.parse('2001-12-15 2:59:43', options)
 // '2001-12-15T02:59:43.000Z'
