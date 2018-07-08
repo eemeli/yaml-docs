@@ -1,9 +1,5 @@
 # Options
 
-#### `YAML.defaultOptions`
-
-#### `YAML.Document.defaults`
-
 ```js
 YAML.defaultOptions
 // { keepNodeTypes: true, version: '1.2' }
@@ -13,6 +9,10 @@ YAML.Document.defaults
 //   '1.1': { merge: true, schema: 'yaml-1.1' },
 //   '1.2': { merge: false, schema: 'core' } }
 ```
+
+#### `YAML.defaultOptions`
+
+#### `YAML.Document.defaults`
 
 `yaml` defines options in three places: as an argument of parse, create and stringify calls, in the values of `YAML.defaultOptions`, and in the version-dependent `YAML.Document.defaults` object. Values set in `YAML.defaultOptions` override version-dependent defaults, and argument options override both. The `version` option value (`'1.2'` by default) may be overridden by any document-specific `%YAML` directive.
 

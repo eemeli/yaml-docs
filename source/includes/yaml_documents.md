@@ -61,46 +61,7 @@ The `contents` of a parsed document will always consist of `Scalar`, `Map`, `Seq
 
 ## Creating Documents
 
-```js
-const doc = new YAML.Document()
-// Document {
-//   anchors: {},
-//   commentBefore: null,
-//   comment: null,
-//   contents: null,
-//   errors: [],
-//   tagPrefixes: [],
-//   schema:
-//    Schema {
-//      merge: false,
-//      schema:
-//       [ ...,
-//         { class: [Function: Boolean],
-//           tag: 'tag:yaml.org,2002:bool',
-//           test: /^(?:true|false)$/i,
-//           resolve: [Function: resolve] },
-//         ... ] },
-//   version: null,
-//   warnings: [] }
-
-doc.version = true
-doc.commentBefore = ' A commented document'
-doc.contents = ['some', 'values', { balloons: 99 }]
-
-String(doc)
-// # A commented document
-// %YAML 1.2
-// ---
-// - some
-// - values
-// - balloons: 99
-```
-
 #### `new YAML.Document(options = {})`
-
-#### `new YAML.Document(schema)`
-
-A YAML Document will need to include a schema definition. Its constructor may thefore be called with a ready `schema`, or the `options` (see [Options](#options)) required for its construction.
 
 | Member        | Type                            | Description                                                                                                                                  |
 | ------------- | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -114,17 +75,32 @@ A YAML Document will need to include a schema definition. Its constructor may th
 | version       | `string?`                       | The parsed version of the source document; if true-ish, stringified output will include a `%YAML` directive.                                 |
 | warnings      | `Error[]`                       | Warnings encountered during parsing.                                                                                                         |
 
-The Document members are all modifiable, though it's unlikely that you'll have reason to change `errors`, `schema` or `warnings`. In particular you may be interested in both reading and writing **`contents`**. Although `YAML.parseDocument()` and `YAML.parseAllDocuments()` will leave it with `Map`, `Seq`, `Scalar` or `null` contents, it can be set to anything.
-
-During stringification, a document with a true-ish `version` value will include a `%YAML` directive; the version number will be set to `1.2` unless the `yaml-1.1` schema is in use.
-
-| Method                       | Return type | Description                                                                                    |
+| Method                       | Return&nbsp;type | Description                                                                                    |
 | ---------------------------- | ----------- | ---------------------------------------------------------------------------------------------- |
-| parse(cst)                   | `Document`  | Parse a CST into this document                                                                 |
 | listNonDefaultTags()         | `string[]`  | List the tags used in the document that are not in the default `tag:yaml.org,2002:` namespace. |
+| parse(cst)                   | `Document`  | Parse a CST into this document                                                                 |
 | setTagPrefix(handle, prefix) | `undefined` | Set `handle` as a shorthand string for the `prefix` tag namespace.                             |
 | toJSON()                     | `any`       | A plain JavaScript representation of the document `contents`.                                  |
 | toString()                   | `string`    | A YAML representation of the document.                                                         |
+
+```js
+const doc = new YAML.Document()
+doc.version = true
+doc.commentBefore = ' A commented document'
+doc.contents = ['some', 'values', { balloons: 99 }]
+
+String(doc)
+// # A commented document
+// %YAML 1.2
+// ---
+// - some
+// - values
+// - balloons: 99
+```
+
+The Document members are all modifiable, though it's unlikely that you'll have reason to change `errors`, `schema` or `warnings`. In particular you may be interested in both reading and writing **`contents`**. Although `YAML.parseDocument()` and `YAML.parseAllDocuments()` will leave it with `Map`, `Seq`, `Scalar` or `null` contents, it can be set to anything.
+
+During stringification, a document with a true-ish `version` value will include a `%YAML` directive; the version number will be set to `1.2` unless the `yaml-1.1` schema is in use.
 
 **`parse(cst)`** is mostly an internal method, modifying the document according to the contents of the parsed `cst`. Calling this multiple times on a Document is not recommended.
 
@@ -136,62 +112,13 @@ Conversely, to stringify a document as YAML, use **`toString()`**. This will als
 
 ## Working with Anchors
 
-```js
-const src = '[{ a: A }, { b: B }, { c: C }]'
-const doc = YAML.parseDocument(src)
-const { anchors, contents } = doc
-const [a, b] = contents.items
-anchors.setAnchor(a.items[0].value) // 'a1'
-anchors.setAnchor(b.items[0].value) // 'a2'
-anchors.setAnchor(null, 'a1') // 'a1'
-anchors.getName(a) // undefined
-anchors.getNode('a2') // { value: 'B', range: [ 16, 18 ] }
-String(doc)
-// - a: A
-// - b: &a2 B
-
-const alias = anchors.createAlias(a, 'AA')
-contents.items.push(alias)
-doc.toJSON()
-// [ { a: 'A' }, { b: 'B' }, { a: 'A' } ]
-String(doc)
-// - &AA
-//   a: A
-// - b: &a2 B
-// - *AA
-
-const merge = anchors.createMergePair(alias)
-b.items.push(merge)
-doc.toJSON()
-// [ { a: 'A' }, { b: 'B', a: 'A' }, { a: 'A' } ]
-String(doc)
-// - &AA
-//   a: A
-// - b: &a2 B
-//   <<: *AA
-// - *AA
-
-// This creates a circular reference
-merge.value.items.push(anchors.createAlias(b))
-doc.toJSON() // [RangeError: Maximum call stack size exceeded]
-String(doc)
-// - &AA
-//   a: A
-// - &a3
-//   b: &a2 B
-//   <<:
-//     - *AA
-//     - *a3
-// - *AA
-```
-
 A description of [alias and merge nodes](#alias-nodes) is included in the next section.
 
 <br/>
 
 #### `YAML.Document#anchors`
 
-| Method                                 | Return type | Description                                                                                                                |
+| Method                                 | Return&nbsp;type | Description                                                                                                                |
 | -------------------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------- |
 | createAlias(node: Node, name?: string) | `Alias`     | Create a new `Alias` node, adding the required anchor for `node`. If `name` is empty, a new anchor name will be generated. |
 | createMergePair(...Node)               | `Merge`     | Create a new `Merge` node with the given source nodes. Non-`Alias` sources will be automatically wrapped.                  |
@@ -199,6 +126,49 @@ A description of [alias and merge nodes](#alias-nodes) is included in the next s
 | getNode(name: string)                  | `Node?`     | The node associated with the anchor `name`, if set.                                                                        |
 | newName(prefix: string)                | `string`    | Find an available anchor name with the given `prefix` and a numerical suffix.                                              |
 | setAnchor(node: Node, name?: string)   | `string?`   | Associate an anchor with `node`. If `name` is empty, a new name will be generated.                                         |
+
+```js
+const src = '[{ a: A }, { b: B }]'
+const doc = YAML.parseDocument(src)
+const { anchors, contents } = doc
+const [a, b] = contents.items
+anchors.setAnchor(a.items[0].value) // 'a1'
+anchors.setAnchor(b.items[0].value) // 'a2'
+anchors.setAnchor(null, 'a1') // 'a1'
+anchors.getName(a) // undefined
+anchors.getNode('a2')
+// { value: 'B', range: [ 16, 18 ], type: 'PLAIN' }
+String(doc)
+// [ { a: A }, { b: &a2 B } ]
+
+const alias = anchors.createAlias(a, 'AA')
+contents.items.push(alias)
+doc.toJSON()
+// [ { a: 'A' }, { b: 'B' }, { a: 'A' } ]
+String(doc)
+// [ &AA { a: A }, { b: &a2 B }, *AA ]
+
+const merge = anchors.createMergePair(alias)
+b.items.push(merge)
+doc.toJSON()
+// [ { a: 'A' }, { b: 'B', a: 'A' }, { a: 'A' } ]
+String(doc)
+// [ &AA { a: A }, { b: &a2 B, <<: *AA }, *AA ]
+
+// This creates a circular reference
+merge.value.items.push(anchors.createAlias(b))
+doc.toJSON() // [RangeError: Maximum call stack size exceeded]
+String(doc)
+// [
+//   &AA { a: A },
+//   &a3 {
+//       b: &a2 B,
+//       <<:
+//         [ *AA, *a3 ]
+//     },
+//   *AA
+// ]
+```
 
 The constructors for `Alias` and `Merge` are not directly exported by the library, as they depend on the document's anchors; instead you'll need to use **`createAlias(node, name)`** and **`createMergePair(...sources)`**. You should make sure to only add alias and merge nodes to the document after the nodes to which they refer, or the document's YAML stringification will fail.
 

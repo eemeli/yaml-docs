@@ -403,6 +403,15 @@ html, body {
     border-bottom: 2px solid $main-bg;
   }
 
+  @media (min-width: $phone-width + 1) {
+    &>table {
+      background-color: $main-bg;
+      clear: both;
+      margin: 1em $examples-width * .4 1em 0;
+      padding-bottom: $main-padding;
+    }
+  }
+
   table {
     margin-bottom: 1em;
     overflow: auto;
