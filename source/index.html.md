@@ -9,7 +9,8 @@ toc_footers:
 includes:
   - intro
   - pure_js
-  - data_schema
+  - options
+  - syntax
   - yaml_documents
   - content_nodes
   - cst_parser
