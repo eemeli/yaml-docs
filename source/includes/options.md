@@ -22,7 +22,7 @@ YAML.Document.defaults
 | keepNodeTypes   | `boolean`                                                        | Store the original node type when parsing documents. By default `true`.                                                                              |
 | merge           | `boolean`                                                        | Enable support for `<<` merge keys.                                                                                                                  |
 | schema          | `'core'` &vert; `'failsafe'` &vert; `'json'` &vert; `'yaml-1.1'` | The base schema to use. By default `'core'` for YAML 1.2 and `'yaml-1.1'` for earlier versions.                                                      |
-| tags            | `Tag[]` &vert; `function`                                        | Array of additional (custom) tags to include in the schema                                                                                           |
+| tags            | [`Tag[]`](#tag) &vert; `function`                                | Array of additional (custom) tags to include in the schema                                                                                           |
 | version         | `string`                                                         | The YAML version used by documents without a `%YAML` directive. By default `'1.2'`.                                                                  |
 
 ## Data Schemas
@@ -82,6 +82,21 @@ doc.contents.value.toDateString()
 The easiest way to extend a schema is by defining the additional **tags** that you wish to support. For further customisation, `tags` may also be a function `(Tag[]) => (Tag[])` that may modify the schema's base tag array.
 
 The `!!binary` and `!!timestamp` YAML 1.1 tags are available as exports under `yaml/types/`, should you wish to use them with the YAML 1.2 `core` schema.
+
+If you wish to implement your own custom tags, the [`!!binary`](https://github.com/eemeli/yaml/blob/master/src/schema/_binary.js) and [`!!timestamp`](https://github.com/eemeli/yaml/blob/master/src/schema/_timestamp.js) tags provide relatively cohesive examples to study.
+
+<h4 id="tag" style="clear:both"><code>Tag</code></h4>
+
+| Member    | Type           | Description                                                                                                                                                                                                                                                   |
+| --------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| class     | `class?`       | A JavaScript class that should be matched to this tag, e.g. `Date` for `!!timestamp`.                                                                                                                                                                         |
+| default   | `boolean?`     | If `true`, the tag should not be explicitly included when stringifying.                                                                                                                                                                                       |
+| format    | `string?`      | If a tag has multiple forms that should be parsed and/or stringified differently, use `format` to identify them.                                                                                                                                              |
+| options   | `object?`      | Used by some tags to configure their stringification, where applicable.                                                                                                                                                                                       |
+| resolve   | `() => Node`   | Should return an instance of a class extending `Node`. If `test` is set, will be called with the resulting match as arguments. Otherwise, will be called as `resolve(doc, cstNode)`.                                                                          |
+| stringify | `() => string` | Called as `stringify(item, ctx, onComment)`, where `item` is the node being stringified, `ctx` contains the stringifying context variables, and `onComment` is a function that should be called if the stringifier includes the item's comment in its output. |
+| tag       | `string`       | The fully qualified name of the tag.                                                                                                                                                                                                                          |
+| test      | `RegExp?`      | Used to match string values of scalar nodes; captured parts will be passed as arguments of `resolve()`.                                                                                                                                                       |
 
 ## Tag Stringifier Options
 

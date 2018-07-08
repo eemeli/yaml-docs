@@ -26,9 +26,9 @@ The default prefix for YAML tags is `tag:yaml.org,2002:`, for which the shorthan
 
 During parsing, unresolved tags should not result in errors (though they will be noted as `warnings`), with the tagged value being parsed according to the data type that it would have under automatic tag resolution rules. This should not result in any data loss, allowing such tags to be handled by the calling app.
 
-In order to have `yaml` provide you with automatic parsing and stringification of non-standard data types, it will need to be configured with a suitable tag object. For an example of what's required, the optional [`!!timestamp`](https://github.com/eemeli/yaml/blob/master/src/schema/_timestamp.js) and [`!!binary`](https://github.com/eemeli/yaml/blob/master/src/schema/_binary.js) tags should provide decent examples.
+In order to have `yaml` provide you with automatic parsing and stringification of non-standard data types, it will need to be configured with a suitable tag object. For more information, see [Custom Tags](#custom-tags).
 
-The YAML 1.0 tag specification is [slightly different](#changes-from-yaml-1-0-to-1-1) from that used in later versions, which is described here.
+The YAML 1.0 tag specification is [slightly different](#changes-from-yaml-1-0-to-1-1) from that used in later versions, and implements prefixing shorthands rather differently.
 
 ## Version Differences
 
