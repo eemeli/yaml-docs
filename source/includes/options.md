@@ -2,7 +2,7 @@
 
 ```js
 YAML.defaultOptions
-// { keepNodeTypes: true, version: '1.2' }
+// { keepBlobsInJSON: true, keepNodeTypes: true, version: '1.2' }
 
 YAML.Document.defaults
 // { '1.0': { merge: true, schema: 'yaml-1.1' },
@@ -18,14 +18,14 @@ YAML.Document.defaults
 
 | Option          | Type                                                             | Description                                                                                                                                          |
 | --------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| keepNodeTypes   | `boolean`                                                        | Store the original node type when parsing documents. By default `true`.                                                                              |
 | keepBlobsInJSON | `boolean`                                                        | Allow non-JSON JavaScript objects to remain in the `toJSON` output. Relevant with the YAML 1.1 `!!timestamp` and `!!binary` tags. By default `true`. |
+| keepNodeTypes   | `boolean`                                                        | Store the original node type when parsing documents. By default `true`.                                                                              |
 | merge           | `boolean`                                                        | Enable support for `<<` merge keys.                                                                                                                  |
 | schema          | `'core'` &vert; `'failsafe'` &vert; `'json'` &vert; `'yaml-1.1'` | The base schema to use. By default `'core'` for YAML 1.2 and `'yaml-1.1'` for earlier versions.                                                      |
 | tags            | `Tag[]` &vert; `function`                                        | Array of additional (custom) tags to include in the schema                                                                                           |
 | version         | `string`                                                         | The YAML version used by documents without a `%YAML` directive. By default `'1.2'`.                                                                  |
 
-## Schemas
+## Data Schemas
 
 ```js
 YAML.parse('3') // 3
@@ -37,7 +37,7 @@ YAML.parse('No', { schema: 'yaml-1.1' }) // false
 YAML.parse('No', { version: '1.1' }) // false
 ```
 
-Aside from defining the language structure, the YAML 1.2 spec defines a number of different **schemas** that may be used. The default is the [core schema](http://yaml.org/spec/1.2/spec.html#id2804923), which is the most common one. The [JSON schema](http://yaml.org/spec/1.2/spec.html#id2803231) is effectively the minimum schema required to parse JSON; both it and the core schema are supersets of the minimal [failsafe schema](http://yaml.org/spec/1.2/spec.html#id2802346).
+Aside from defining the language structure, the YAML 1.2 spec defines a number of different **schemas** that may be used. The default is the [`core`](http://yaml.org/spec/1.2/spec.html#id2804923) schema, which is the most common one. The [`json`](http://yaml.org/spec/1.2/spec.html#id2803231) schema is effectively the minimum schema required to parse JSON; both it and the core schema are supersets of the minimal [`failsafe`](http://yaml.org/spec/1.2/spec.html#id2802346) schema.
 
 The `yaml-1.1` schema matches the more liberal [YAML 1.1 types](http://yaml.org/type/) (also used by YAML 1.0), including binary data and timestamps as distinct tags as well as accepting greater variance in scalar values (with e.g. `'No'` being parsed as `false` rather than a string value). The `!!value` and `!!yaml` types are not supported.
 
@@ -69,17 +69,19 @@ YAML.parse('!!timestamp 2001-12-15 2:59:43')
 //   falling back to tag:yaml.org,2002:str
 // '2001-12-15 2:59:43'
 
-const options = { tags: [binary, timestamp] }
+YAML.defaultOptions.tags = [binary, timestamp]
 
-YAML.parse('2001-12-15 2:59:43', options)
-// '2001-12-15T02:59:43.000Z'
+YAML.parse('2001-12-15 2:59:43')
+// 2001-12-15T02:59:43.000Z
 
-const doc = YAML.parseDocument('2001-12-15 2:59:43', options)
+const doc = YAML.parseDocument('2001-12-15 2:59:43')
 doc.contents.value.toDateString()
 // 'Sat Dec 15 2001'
 ```
 
 The easiest way to extend a schema is by defining the additional **tags** that you wish to support. For further customisation, `tags` may also be a function `(Tag[]) => (Tag[])` that may modify the schema's base tag array.
+
+The `!!binary` and `!!timestamp` YAML 1.1 tags are available as exports under `yaml/types/`, should you wish to use them with the YAML 1.2 `core` schema.
 
 ## Tag Stringifier Options
 

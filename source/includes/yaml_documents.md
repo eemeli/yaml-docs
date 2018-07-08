@@ -45,13 +45,13 @@ doc.contents
 
 #### `YAML.parseDocument(str, options = {}): YAML.Document`
 
-Parses a single `YAML.Document` from the input `str`; used internally by `YAML.parse`. Will throw an error if `str` contains more than one document. See [Options](#options) for more information on the second parameter.
+Parses a single `YAML.Document` from the input `str`; used internally by `YAML.parse`. Will include an error if `str` contains more than one document. See [Options](#options) for more information on the second parameter.
 
 <br/>
 
 #### `YAML.parseAllDocuments(str, options = {}): YAML.Document[]`
 
-When parsing YAML, the input string `str` may consist of a stream of documents separated from each other by `...` document end marker lines. `YAML.parseAllDocuments` will return an array of `Document` objects that allow these documents to be parsed and manipulated with more control.
+When parsing YAML, the input string `str` may consist of a stream of documents separated from each other by `...` document end marker lines. `YAML.parseAllDocuments` will return an array of `Document` objects that allow these documents to be parsed and manipulated with more control. See [Options](#options) for more information on the second parameter.
 
 <br/>
 
