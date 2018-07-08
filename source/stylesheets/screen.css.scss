@@ -406,6 +406,8 @@ html, body {
   @media (min-width: $phone-width + 1) {
     &>table {
       background-color: $main-bg;
+      border-top-right-radius: 3px;
+      border-bottom-right-radius: 3px;
       clear: both;
       margin: 1em $examples-width * .4 1em 0;
       padding-bottom: $main-padding;
