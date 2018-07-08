@@ -10,7 +10,8 @@ includes:
   - intro
   - pure_js
   - data_schema
-  - yaml_objects
+  - yaml_documents
+  - content_nodes
   - cst_parser
   - errors
 
