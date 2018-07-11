@@ -3,12 +3,12 @@
 > To install:
 
 ```sh
-npm install yaml@next
+npm install yaml
 # or
-yarn add yaml@next
+yarn add yaml
 ```
 
-`yaml` is a JavaScript parser and stringifier for [YAML](http://yaml.org/), a human friendly data serialization standard. It supports all aspects of the 1.2 version of the spec for both parsing and stringifying data, as well as supporting YAML 1.1 data types.
+`yaml` is a JavaScript parser and stringifier for [YAML](http://yaml.org/), a human friendly data serialization standard. It supports both parsing and stringifying data using all versions of YAML, along with all common data schemas. As a particularly distinguishing feature, `yaml` fully supports reading and writing comments in YAML documents.
 
 The library is released under the ISC open source license, and the code is [available on GitHub](https://github.com/eemeli/yaml/). It has no external dependencies, and is usable in both browser and node environments.
 
