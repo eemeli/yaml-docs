@@ -57,3 +57,4 @@ import parseCST from 'yaml/parse-cst'
 ```
 
 * [`parseCST(str): CSTDocument[]`](#parsecst)
+* [`YAML.parseCST(str): CSTDocument[]`](#parsecst)

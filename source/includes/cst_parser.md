@@ -33,11 +33,13 @@ cst[1]            // second document, containing a sequence
 
 #### `parseCST(string): CSTDocument[]`
 
+#### `YAML.parseCST(string): CSTDocument[]`
+
 The CST parser will not produce a CST that is necessarily valid YAML, and in particular its representation of collections of items is expected to undergo further processing and validation. The parser should never throw errors, but may include them as a value of the relevant node. On the other hand, if you feed it garbage, you'll likely get a garbage CST as well.
 
-The public API of the library is a single function which returns an array of parsed CST documents. The array and its contained nodes override the default `toString` method, each returning a YAML string representation of its contents.
+The public API of the CST layer is a single function which returns an array of parsed CST documents. The array and its contained nodes override the default `toString` method, each returning a YAML string representation of its contents. The same function is exported as a part of the default `YAML` object, as well as seprately at `yaml/parse-cst`. It has no dependency on the rest of the library, so importing only `parseCST` should add about 9kB to your gzipped bundle size, when the whole library will add about 27kB.
 
-If a node has its `value` set, that will be used when re-stringifying. Care should be taken when modifying the CST, as no error checks are included to verify that the resulting YAML is valid, or that e.g. indentation levels aren't broken. In other words, this is an engineering tool and you may hurt yourself. If you're looking to generate a brand new YAML document, you should probably not be using this API directly.
+Care should be taken when modifying the CST, as no error checks are included to verify that the resulting YAML is valid, or that e.g. indentation levels aren't broken. In other words, this is an engineering tool and you may hurt yourself. If you're looking to generate a brand new YAML document, see the section on [Creating Documents](#creating-documents).
 
 For more usage examples and CST trees, have a look through the [extensive test suite](https://github.com/eemeli/yaml/tree/master/__tests__/cst) included in the project's repository.
 
@@ -45,9 +47,8 @@ For more usage examples and CST trees, have a look through the [extensive test s
 
 ```js
 import YAML from 'yaml'
-import parseCST from 'yaml/parse-cst'
 
-const cst = parseCST('this: is: bad YAML')
+const cst = YAML.parseCST('this: is: bad YAML')
 
 cst[0].contents[0]  // Note: Simplified for clarity
 // { type: 'MAP',
@@ -128,6 +129,8 @@ type ContentNode =
 ```
 
 Each node in the CST extends a common ancestor `Node`. Additional undocumented properties are available, but are likely only useful during parsing.
+
+If a node has its `value` set, that will be used when re-stringifying.
 
 <h3 style="clear:both">Scalars</h3>
 
