@@ -2,7 +2,9 @@
 
 ```js
 YAML.defaultOptions
-// { keepBlobsInJSON: true, keepNodeTypes: true, version: '1.2' }
+// { keepBlobsInJSON: true,
+//   keepNodeTypes: true,
+//   version: '1.2' }
 
 YAML.Document.defaults
 // { '1.0': { merge: true, schema: 'yaml-1.1' },
@@ -14,11 +16,14 @@ YAML.Document.defaults
 
 #### `YAML.Document.defaults`
 
-`yaml` defines options in three places: as an argument of parse, create and stringify calls, in the values of `YAML.defaultOptions`, and in the version-dependent `YAML.Document.defaults` object. Values set in `YAML.defaultOptions` override version-dependent defaults, and argument options override both. The `version` option value (`'1.2'` by default) may be overridden by any document-specific `%YAML` directive.
+`yaml` defines options in three places: as an argument of parse, create and stringify calls, in the values of `YAML.defaultOptions`, and in the version-dependent `YAML.Document.defaults` object. Values set in `YAML.defaultOptions` override version-dependent defaults, and argument options override both.
+
+The `version` option value (`'1.2'` by default) may be overridden by any document-specific `%YAML` directive.
 
 | Option          | Type                                                             | Description                                                                                                                                          |
 | --------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | keepBlobsInJSON | `boolean`                                                        | Allow non-JSON JavaScript objects to remain in the `toJSON` output. Relevant with the YAML 1.1 `!!timestamp` and `!!binary` tags. By default `true`. |
+| keepCstNodes    | `boolean`                                                        | Include references in the AST to each node's corresponding CST node. By default `false`.                                                             |
 | keepNodeTypes   | `boolean`                                                        | Store the original node type when parsing documents. By default `true`.                                                                              |
 | merge           | `boolean`                                                        | Enable support for `<<` merge keys.                                                                                                                  |
 | schema          | `'core'` &vert; `'failsafe'` &vert; `'json'` &vert; `'yaml-1.1'` | The base schema to use. By default `'core'` for YAML 1.2 and `'yaml-1.1'` for earlier versions.                                                      |
