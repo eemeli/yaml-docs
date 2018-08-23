@@ -80,6 +80,27 @@ doc.contents.items[0].value.items[0].value.value
 
 While the YAML spec considers e.g. block collections within a flow collection to be an error, this error will not be detected by the CST parser. For complete validation, you will need to parse the CST into a `YAML.Document`. If the document contains errors, they will be included in the document's `errors` array, and each error will will contain a `source` reference to the CST node where it was encountered. Do note that even if an error is encountered, the document contents might still be available. In such a case, the error will be a [`YAMLSemanticError`](#yamlsemanticerror) rather than a [`YAMLSyntaxError`](#yamlsyntaxerror).
 
+<h3 style="clear:both">Dealing with CRLF line terminators</h3>
+
+```js
+import parseCST from 'yaml/parse-cst'
+
+const src = '- foo\r\n- bar\r\n'
+const cst = parseCST(src)
+cst.setOrigRanges() // true
+const { range, valueRange } = cst[0].contents[0].items[1].node
+
+src.slice(range.origStart, range.origEnd)
+// 'bar\r\n'
+
+src.slice(valueRange.origStart, valueRange.origEnd)
+// 'bar'
+```
+
+#### `CST#setOrigRanges(): bool`
+
+The array returned by `parseCST()` will also include a method `setOrigRanges` to help deal with input that includes `\r\n` line terminators, which are converted to just `\n` before parsing into documents. This conversion will obviously change the total length of the string, as well as the offsets of all ranges. If the method returns `false`, the input did not include `\r\n` line terminators and no changes were made. However, if the method returns `true`, each `Range` object within the CST will have its `origStart` and `origEnd` values set appropriately to refer to the original input string.
+
 ## CST Nodes
 
 > Node type definitions use Flow-ish notation, so `+` as a prefix indicates a read-only getter property.
@@ -88,7 +109,9 @@ While the YAML spec considers e.g. block collections within a flow collection to
 class Range {
   start: number,        // offset of first character
   end: number,          // offset after last character
-  +isEmpty: boolean     // true if end is not greater than start
+  isEmpty(): boolean,   // true if end is not greater than start
+  origStart: ?number,   // set by CST#setOrigRanges(), source
+  origEnd: ?number      //   offsets for input with CRLF terminators
 }
 ```
 
