@@ -8,10 +8,10 @@ npm install yaml
 yarn add yaml
 ```
 
-`yaml` is a new definitive library for [YAML](http://yaml.org/), a human friendly data serialization standard. It:
+`yaml` is a new definitive library for [YAML](http://yaml.org/), a human friendly data serialization standard. This library:
 
 - Supports all versions of the standard (1.0, 1.1, and 1.2),
-- Passes all of the yaml-test-suite tests,
+- Passes all of the [yaml-test-suite](https://github.com/yaml/yaml-test-suite) tests,
 - Can accept any string as input without throwing, parsing as much YAML out of it as it can, and
 - Supports parsing, modifying, and writing YAML comments.
 
