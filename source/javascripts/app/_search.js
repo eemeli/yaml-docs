@@ -69,6 +69,7 @@
       var results = index.search(searchInput.value).filter(function(r) {
         return r.score > 0.0001;
       });
+      gtag('event', 'search', { event_label: searchInput.value, value: results.length });
 
       if (results.length) {
         searchResults.empty();
