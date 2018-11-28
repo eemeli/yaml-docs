@@ -25,6 +25,7 @@ The `version` option value (`'1.2'` by default) may be overridden by any documen
 | keepBlobsInJSON | `boolean`                                                        | Allow non-JSON JavaScript objects to remain in the `toJSON` output. Relevant with the YAML 1.1 `!!timestamp` and `!!binary` tags. By default `true`. |
 | keepCstNodes    | `boolean`                                                        | Include references in the AST to each node's corresponding CST node. By default `false`.                                                             |
 | keepNodeTypes   | `boolean`                                                        | Store the original node type when parsing documents. By default `true`.                                                                              |
+| mapAsMap        | `boolean`                                                        | When outputting JS, use Map rather than Object to represent mappings. By default `false`.                                                            |
 | merge           | `boolean`                                                        | Enable support for `<<` merge keys.                                                                                                                  |
 | schema          | `'core'` &vert; `'failsafe'` &vert; `'json'` &vert; `'yaml-1.1'` | The base schema to use. By default `'core'` for YAML 1.2 and `'yaml-1.1'` for earlier versions.                                                      |
 | tags            | [`Tag[]`](#tag) &vert; `function`                                | Array of additional (custom) tags to include in the schema                                                                                           |
@@ -40,6 +41,9 @@ YAML.parse('No') // 'No'
 YAML.parse('No', { schema: 'json' }) // SyntaxError: Unresolved plain scalar "No"
 YAML.parse('No', { schema: 'yaml-1.1' }) // false
 YAML.parse('No', { version: '1.1' }) // false
+
+YAML.parse('{[1, 2]: many}') // { '[1,2]': 'many' }
+YAML.parse('{[1, 2]: many}', { mapAsMap: true }) // Map { [ 1, 2 ] => 'many' }
 ```
 
 Aside from defining the language structure, the YAML 1.2 spec defines a number of different **schemas** that may be used. The default is the [`core`](http://yaml.org/spec/1.2/spec.html#id2804923) schema, which is the most common one. The [`json`](http://yaml.org/spec/1.2/spec.html#id2803231) schema is effectively the minimum schema required to parse JSON; both it and the core schema are supersets of the minimal [`failsafe`](http://yaml.org/spec/1.2/spec.html#id2802346) schema.
