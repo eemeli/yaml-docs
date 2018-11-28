@@ -106,7 +106,7 @@ String(doc)
 
 #### `YAML.createNode(value, false): Map | Seq | string | number | boolean | null`
 
-`YAML.createNode` recursively turns objects into `Map` and arrays to `Seq` [collections](#collections). If the second `wrapScalars` argument is undefined or `true`, it also wraps plain values in `Scalar` objects. Its primary use is to enable attaching comments or other metadata to a value, or to otherwise exert more fine-grained control over the stringified output.
+`YAML.createNode` recursively turns objects into [collections](#collections). Generic objects as well as `Map` and its descendants become mappings, while arrays and other iterable objects result in sequences. If the second `wrapScalars` argument is undefined or `true`, it also wraps plain values in `Scalar` objects. Its primary use is to enable attaching comments or other metadata to a value, or to otherwise exert more fine-grained control over the stringified output.
 
 To stringify the output of `YAML.createNode` as YAML, you'll need to assign it to the `contents` of a Document (or somewhere within said contents), as the document's schema is required for YAML string output.
 
@@ -134,7 +134,7 @@ doc.toString()
 // - 1: a number
 ```
 
-To construct a `Seq` or `Map`, use [`YAML.createNode()`](#yaml-createnode) with array or object input, or create the collections directly by importing the classes from `yaml/seq` and `yaml/map`.
+To construct a `Seq` or `Map`, use [`YAML.createNode()`](#yaml-createnode) with array, object or iterable input, or create the collections directly by importing the classes from `yaml/seq` and `yaml/map`.
 
 Once created, normal array operations may be used to modify the `items` array. New `Pair` objects may created by importing the class from `yaml/pair` and using its `new Pair(key, value)` constructor. Note in particular that this is required to create non-`string` keys.
 
