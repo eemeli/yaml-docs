@@ -106,19 +106,25 @@ If you wish to implement your own custom tags, the [`!!binary`](https://github.c
 ## Tag Stringifier Options
 
 ```js
-const doc = YAML.parseDocument('this is: null')
-doc.contents.items[0]
-// Pair {
-//   key: Scalar { value: 'this is', range: [ 0, 7 ], type: 'PLAIN' },
-//   value: Scalar { value: null, range: [ 9, 13 ], type: 'PLAIN' } }
+import { nullOptions, strOptions } from 'yaml/schema'
 
-const nullTag = doc.schema.schema.find(
-  ({ tag }) => tag === 'tag:yaml.org,2002:null'
-)
-nullTag.options.nullStr = '~'
+YAML.stringify({ 'this is': null })
+// this is: null
 
-String(doc)
-// this is: ~
+nullOptions
+// { nullStr: 'null' }
+nullOptions.nullStr = '~'
+
+strOptions
+// { defaultType: 'PLAIN',
+//   doubleQuoted: { jsonEncoding: false, minMultiLineLength: 40 },
+//   fold: { lineWidth: 80, minContentWidth: 20 } }
+strOptions.defaultType = 'QUOTE_SINGLE'
+
+YAML.stringify({ 'this is': null })
+// 'this is': ~
 ```
 
-Some of the tags (in particular `!!null`, `!!str` and `!!binary`) support additional customisations for their YAML stringification. To adjust those, modify the `options` object of the appropriate tag.
+To customise the YAML stringification, the `nullOptions` and `strOptions` objects are exported from `'yaml/schema'`. Note that these values are used by all documents. For example, to disable the automatic line wrapping, set `strOptions.fold.lineWidth` to `0`.
+
+The optional `!!binary` type (available at `'yaml/types/binary'`) also provides for some configuration via its `options` object.
