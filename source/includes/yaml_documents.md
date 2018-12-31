@@ -63,25 +63,26 @@ The `contents` of a parsed document will always consist of `Scalar`, `Map`, `Seq
 
 #### `new YAML.Document(options = {})`
 
-| Member        | Type                            | Description                                                                                                                                  |
-| ------------- | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| anchors       | [`Anchors`](#anchors)           | Anchors associated with the document's nodes; also provides alias & merge node creators.                                                     |
-| commentBefore | `string?`                       | A comment at the very beginning of the document.                                                                                             |
-| comment       | `string?`                       | A comment at the end of the document.                                                                                                        |
-| contents      | [`Node`](#ast-nodes)&vert;`any` | The document contents.                                                                                                                       |
-| errors        | `Error[]`                       | Errors encountered during parsing.                                                                                                           |
-| schema        | `Schema`                        | The schema used with the document.                                                                                                           |
-| tagPrefixes   | `Prefix[]`                      | Array of prefixes; each will have a string `handle` that starts and ends with `!` and a string `prefix` that the handle will be replaced by. |
-| version       | `string?`                       | The parsed version of the source document; if true-ish, stringified output will include a `%YAML` directive.                                 |
-| warnings      | `Error[]`                       | Warnings encountered during parsing.                                                                                                         |
+| Member        | Type                                | Description                                                                                                                                  |
+| ------------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| anchors       | [`Anchors`](#anchors)               | Anchors associated with the document's nodes; also provides alias & merge node creators.                                                     |
+| commentBefore | `string?`                           | A comment at the very beginning of the document. If not empty, separated from the rest of the document by a blank line when stringified.     |
+| comment       | `string?`                           | A comment at the end of the document. If not empty, separated from the rest of the document by a blank line when stringified.                |
+| contents      | [`Node`](#content-nodes)&vert;`any` | The document contents.                                                                                                                       |
+| errors        | `Error[]`                           | Errors encountered during parsing.                                                                                                           |
+| schema        | `Schema`                            | The schema used with the document.                                                                                                           |
+| tagPrefixes   | `Prefix[]`                          | Array of prefixes; each will have a string `handle` that starts and ends with `!` and a string `prefix` that the handle will be replaced by. |
+| version       | `string?`                           | The parsed version of the source document; if true-ish, stringified output will include a `%YAML` directive.                                 |
+| warnings      | `Error[]`                           | Warnings encountered during parsing.                                                                                                         |
 
-| Method                       | Return&nbsp;type | Description                                                                                    |
-| ---------------------------- | ----------- | ---------------------------------------------------------------------------------------------- |
-| listNonDefaultTags()         | `string[]`  | List the tags used in the document that are not in the default `tag:yaml.org,2002:` namespace. |
-| parse(cst)                   | `Document`  | Parse a CST into this document                                                                 |
-| setTagPrefix(handle, prefix) | `undefined` | Set `handle` as a shorthand string for the `prefix` tag namespace.                             |
-| toJSON()                     | `any`       | A plain JavaScript representation of the document `contents`.                                  |
-| toString()                   | `string`    | A YAML representation of the document.                                                         |
+| Method                       | Return&nbsp;type | Description                                                                                                                                                     |
+| ---------------------------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| listNonDefaultTags()         | `string[]`       | List the tags used in the document that are not in the default `tag:yaml.org,2002:` namespace.                                                                  |
+| parse(cst)                   | `Document`       | Parse a CST into this document                                                                                                                                  |
+| setSchema()                  | `void`           | When a document is created with `new YAML.Document()`, the schema object is not set as it may be influenced by parsed directives; call this to set it manually. |
+| setTagPrefix(handle, prefix) | `undefined`      | Set `handle` as a shorthand string for the `prefix` tag namespace.                                                                                              |
+| toJSON()                     | `any`            | A plain JavaScript representation of the document `contents`.                                                                                                   |
+| toString()                   | `string`         | A YAML representation of the document.                                                                                                                          |
 
 ```js
 const doc = new YAML.Document()
@@ -106,6 +107,23 @@ During stringification, a document with a true-ish `version` value will include 
 
 To define a tag prefix to use when stringifying, use **`setTagPrefix(handle, prefix)`** rather than setting a value directly in `tagPrefixes`. This will guarantee that the `handle` is valid (by throwing an error), and will overwrite any previous definition for the `handle`. Use an empty `prefix` value to remove a prefix.
 
+```js
+import { timestamp } from 'yaml/types/timestamp'
+
+const src = '1969-07-21T02:56:15Z'
+const doc = YAML.parseDocument(src, { tags: [timestamp] })
+
+doc.toJSON()
+// Date { 1969-07-21T02:56:15.000Z }
+
+doc.options.keepBlobsInJSON = false
+doc.toJSON()
+// '1969-07-21T02:56:15.000Z'
+
+String(doc)
+// '1969-07-21T02:56:15\n'
+```
+
 For a plain JavaScript representation of the document, **`toJSON()`** is your friend. By default the values wrapped in scalar nodes will not be forced to JSON, so e.g. a `!!timestamp` will remain a `Date` in the output. To change this behaviour and enforce JSON values only, set the [`keepBlobsInJSON` option](#options) to `false`.
 
 Conversely, to stringify a document as YAML, use **`toString()`**. This will also be called by `String(doc)`. This method will throw if the `errors` array is not empty.
@@ -119,13 +137,13 @@ A description of [alias and merge nodes](#alias-nodes) is included in the next s
 #### `YAML.Document#anchors`
 
 | Method                                 | Return&nbsp;type | Description                                                                                                                |
-| -------------------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------- |
-| createAlias(node: Node, name?: string) | `Alias`     | Create a new `Alias` node, adding the required anchor for `node`. If `name` is empty, a new anchor name will be generated. |
-| createMergePair(...Node)               | `Merge`     | Create a new `Merge` node with the given source nodes. Non-`Alias` sources will be automatically wrapped.                  |
-| getName(node: Node)                    | `string?`   | The anchor name associated with `node`, if set.                                                                            |
-| getNode(name: string)                  | `Node?`     | The node associated with the anchor `name`, if set.                                                                        |
-| newName(prefix: string)                | `string`    | Find an available anchor name with the given `prefix` and a numerical suffix.                                              |
-| setAnchor(node: Node, name?: string)   | `string?`   | Associate an anchor with `node`. If `name` is empty, a new name will be generated.                                         |
+| -------------------------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| createAlias(node: Node, name?: string) | `Alias`          | Create a new `Alias` node, adding the required anchor for `node`. If `name` is empty, a new anchor name will be generated. |
+| createMergePair(...Node)               | `Merge`          | Create a new `Merge` node with the given source nodes. Non-`Alias` sources will be automatically wrapped.                  |
+| getName(node: Node)                    | `string?`        | The anchor name associated with `node`, if set.                                                                            |
+| getNode(name: string)                  | `Node?`          | The node associated with the anchor `name`, if set.                                                                        |
+| newName(prefix: string)                | `string`         | Find an available anchor name with the given `prefix` and a numerical suffix.                                              |
+| setAnchor(node: Node, name?: string)   | `string?`        | Associate an anchor with `node`. If `name` is empty, a new name will be generated.                                         |
 
 ```js
 const src = '[{ a: A }, { b: B }]'

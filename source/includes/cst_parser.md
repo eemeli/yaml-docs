@@ -153,7 +153,7 @@ type ContentNode =
 
 Each node in the CST extends a common ancestor `Node`. Additional undocumented properties are available, but are likely only useful during parsing.
 
-If a node has its `value` set, that will be used when re-stringifying.
+If a node has its `value` set, that will be used when re-stringifying (initially `undefined` for all nodes).
 
 <h3 style="clear:both">Scalars</h3>
 
@@ -177,9 +177,14 @@ class Comment extends Node {
   +rawValue: null,
   +tag: null
 }
+
+class BlankLine extends Comment {
+  type: 'BLANK_LINE',   // may represent multiple consecutive empty
+  +comment: null,       //   lines, which may include whitespace
+}
 ```
 
-While `Alias` and `Comment` nodes are not technically scalars, they are parsed as such at this level.
+While `Alias`, `BlankLine` and `Comment` nodes are not technically scalars, they are parsed as such at this level.
 
 Due to parsing differences, each scalar type is implemented using its own class.
 

@@ -65,11 +65,11 @@ picture: !!binary |
 
 The most significant difference between YAML 1.1 and YAML 1.2 is the introduction of the core data schema as the recommended default, replacing the YAML 1.1 type library:
 
-* Only `true` and `false` strings are parsed (case-insensitively) as booleans; `y`, `yes`, `on`, and their negative counterparts are parsed as strings.
+* Only `true` and `false` strings are parsed as booleans (including `True` and `TRUE`); `y`, `yes`, `on`, and their negative counterparts are parsed as strings.
 * Underlines `_` cannot be used within numerical values.
 * Octal values need a `0o` prefix; e.g. `010` is now parsed with the value 10 rather than 8.
 * The binary and sexagesimal integer formats have been dropped.
-* The `!!timestamp` and `!!binary` types have been dropped.
+* The `!!pairs`, `!!omap`, `!!set`, `!!timestamp` and `!!binary` types have been dropped.
 * The merge `<<` and value `=` special mapping keys have been removed.
 
 The other major change has been to make sure that YAML 1.2 is a valid superset of JSON. Additionally there are some minor differences between the parsing rules:

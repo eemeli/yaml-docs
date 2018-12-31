@@ -11,6 +11,8 @@ class Node {
   range: ?[number, number],
       // the [start, end] range of characters of the source parsed
       // into this node (undefined for pairs or if not parsed)
+  spaceBefore: ?boolean,
+      // a blank line before this node and its commentBefore
   tag: ?string,       // a fully qualified tag, if required
   toJSON(): any       // a plain JS representation of this node
 }
@@ -58,6 +60,8 @@ Within a YAML document, two forms of collections are supported: sequential `Seq`
 
 When stringifying collections, by default block notation will be used. Flow notation will be selected if `type` is `FLOW_MAP` or `FLOW_SEQ`, the collection is within a surrounding flow collection, or if the collection is in an implicit key.
 
+The `yaml-1.1` schema includes [additional collections](https://yaml.org/type/index.html) that are based on `Map` and `Seq`: `OMap` and `Pairs` are sequences of `Pair` objects (`OMap` requires unique keys & corresponds to the JS Map object), and `Set` is a map of keys with null values that corresponds to the JS Set object.
+
 ## Alias Nodes
 
 ```js
@@ -102,13 +106,13 @@ String(doc)
 // - balloons: 99
 ```
 
-#### `YAML.createNode(value): Map | Seq | Scalar`
+#### `YAML.createNode(value, wrapScalars?, tag?): Node`
 
-#### `YAML.createNode(value, false): Map | Seq | string | number | boolean | null`
+`YAML.createNode` recursively turns objects into [collections](#collections). Generic objects as well as `Map` and its descendants become mappings, while arrays and other iterable objects result in sequences. If `wrapScalars` is undefined or `true`, it also wraps plain values in `Scalar` objects; if it is false and `value` is not an object, it will be returned directly.
 
-`YAML.createNode` recursively turns objects into [collections](#collections). Generic objects as well as `Map` and its descendants become mappings, while arrays and other iterable objects result in sequences. If the second `wrapScalars` argument is undefined or `true`, it also wraps plain values in `Scalar` objects. Its primary use is to enable attaching comments or other metadata to a value, or to otherwise exert more fine-grained control over the stringified output.
+To specify the collection type, set `tag` to its identifying string, e.g. `"!!omap"`. Note that this requires the corresponding tag to be available based on the default options. To use a specific document's schema, use the wrapped method `doc.schema.createNode(value, wrapScalars, tag)`.
 
-To stringify the output of `YAML.createNode` as YAML, you'll need to assign it to the `contents` of a Document (or somewhere within said contents), as the document's schema is required for YAML string output.
+The primary purpose of this function is to enable attaching comments or other metadata to a value, or to otherwise exert more fine-grained control over the stringified output. To that end, you'll need to assign its return value to the `contents` of a Document (or somewhere within said contents), as the document's schema is required for YAML string output.
 
 <h4 style="clear:both"><code>new Map(), new Seq(), new Pair(key, value)</code></h4>
 
@@ -136,7 +140,7 @@ doc.toString()
 
 To construct a `Seq` or `Map`, use [`YAML.createNode()`](#yaml-createnode) with array, object or iterable input, or create the collections directly by importing the classes from `yaml/seq` and `yaml/map`.
 
-Once created, normal array operations may be used to modify the `items` array. New `Pair` objects may created by importing the class from `yaml/pair` and using its `new Pair(key, value)` constructor. Note in particular that this is required to create non-`string` keys.
+Once created, normal array operations may be used to modify the `items` array. New `Pair` objects may created by importing the class from `yaml/pair` and using its `new Pair(key, value)` constructor.
 
 ## Comments
 
@@ -161,6 +165,7 @@ seq.comment = ' collection end comment'
 
 doc.toString()
 // # This is YAML.
+//
 // it has:
 //   - an array # item comment
 //   - of values
@@ -169,6 +174,32 @@ doc.toString()
 
 A primary differentiator between this and other YAML libraries is the ability to programmatically handle comments, which according to [the spec](http://yaml.org/spec/1.2/spec.html#id2767100) "must not have any effect on the serialization tree or representation graph. In particular, comments are not associated with a particular node."
 
-This library does allow comments to be handled programmatically, and does attach them to particular nodes. Each `Scalar`, `Map`, `Seq` and the `Document` itself has `comment` and `commentBefore` members that may be set to a stringifiable value. The string contents of comments are not processed by the library, except for merging adjacent comment lines together and prefixing each line with the `#` comment indicator.
+This library does allow comments to be handled programmatically, and does attach them to particular nodes (most often, the following node). Each `Scalar`, `Map`, `Seq` and the `Document` itself has `comment` and `commentBefore` members that may be set to a stringifiable value.
 
-**Note**: Due to implementation details, the library's comment handling is not completely stable. In particular, when reading and writing a YAML file, comments may move around a bit due to getting associated with a different node than intended.
+The string contents of comments are not processed by the library, except for merging adjacent comment lines together and prefixing each line with the `#` comment indicator. Document comments will be separated from the rest of the document by a blank line.
+
+**Note**: Due to implementation details, the library's comment handling is not completely stable. In particular, when creating, writing, and then reading a YAML file, comments may sometimes be associated with a different node.
+
+## Blank Lines
+
+```js
+const doc = YAML.parseDocument('[ one, two, three ]')
+
+doc.contents.items[0].comment = ' item comment'
+doc.contents.items[1].spaceBefore = true
+doc.comment = ' document end comment'
+
+doc.toString()
+// [
+//   one, # item comment
+//
+//   two,
+//   three
+// ]
+//
+// # document end comment
+```
+
+Similarly to comments, the YAML spec instructs non-content blank lines to be discarded. Instead of doing that, `yaml` provides a `spaceBefore` boolean property for each node. If true, the node (and its `commentBefore`, if any) will be separated from the preceding node by a blank line.
+
+Note that scalar block values with "keep" chomping (i.e. with `+` in their header) consider any trailing empty lines to be a part of their content, so the `spaceBefore` setting of a node following such a value is ignored.
