@@ -2,7 +2,7 @@
 title: YAML
 
 toc_footers:
-  - <a href='https://github.com/eemeli/yaml/releases'>Version 1.1.0 (changelog)</a>
+  - <a href='https://github.com/eemeli/yaml/releases'>Version 1.2.0 (changelog)</a>
   - <a href='https://github.com/eemeli/yaml'>github.com/eemeli/yaml</a>
   - <a href='https://www.npmjs.com/package/yaml'><code>npm install yaml</code></a>
 
