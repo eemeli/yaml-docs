@@ -58,7 +58,10 @@ html, body {
   left: 0;
   bottom: 0;
   width: $nav-width;
-  background-color: $nav-bg;
+  background: $nav-bg;
+  background: $nav-bg-gradient;
+  background-attachment: fixed;
+  border-right: 1px solid $nav-right-border-color;
   font-size: 13px;
   font-weight: bold;
 
@@ -82,7 +85,7 @@ html, body {
     position: relative;
 
     input {
-      background: $nav-bg;
+      background: transparent;
       border-width: 0 0 1px 0;
       border-color: $search-box-border-color;
       padding: 6px 0 6px 20px;
@@ -263,7 +266,9 @@ html, body {
   // half of the content always this background color.
   .dark-box {
     width: $examples-width;
-    background-color: $examples-bg;
+    background: $examples-bg;
+    background: $examples-bg-gradient;
+    background-attachment: fixed;
     position: absolute;
     right: 0;
     top: 0;
@@ -346,7 +351,9 @@ html, body {
 
   h1 {
     @extend %header-font;
+    color: #555;
     font-size: 25px;
+    font-weight: 300 !important;
     padding-top: 0.5em;
     padding-bottom: 0.5em;
     margin-bottom: $h1-margin-bottom;
@@ -364,6 +371,7 @@ html, body {
   h2 {
     @extend %header-font;
     font-size: 19px;
+    font-weight: normal !important;
     margin-top: 4em;
     margin-bottom: 0;
     border-top: 1px solid #ccc;
@@ -446,6 +454,16 @@ html, body {
 
     tr:nth-child(even)>td {
       background-color: lighten($main-bg,2.4%);
+    }
+  }
+
+  a {
+    color : $link-text;
+    code {
+      color: darken($link-text, 10%);
+    }
+    &:visited, &:visited code {
+      color: $link-visited-text;
     }
   }
 
@@ -563,6 +581,7 @@ html, body {
       background-color: $code-annotation-bg;
       padding: $code-annotation-padding 2em;
       color: #eee;
+      font-weight: bold;
     }
   }
 }
@@ -576,6 +595,7 @@ html, body {
 @media (max-width: $tablet-width) {
   .toc-wrapper {
     left: -$nav-width;
+    border-right: none;
 
     &.open {
       left: 0;
