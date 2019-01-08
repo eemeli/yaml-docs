@@ -19,7 +19,7 @@ The library is released under the ISC open source license, and the code is [avai
 
 ## API Overview
 
-The API provided by `yaml` has three layers, depending on how deep you need to go: [Pure JavaScript](#pure-javascript), [YAML Documents](#yaml-documents), and the [CST Parser](#cst-parser). The first has the simplest API and "just works", the second gets you all the bells and whistles supported by the library along with a decent AST, and the third is the closest to YAML source, making it fast, raw, and crude.
+The API provided by `yaml` has three layers, depending on how deep you need to go: [Pure JavaScript](#pure-javascript), [YAML Documents](#yaml-documents), and the [CST Parser](#cst-parser). The first has the simplest API and "just works", the second gets you all the bells and whistles supported by the library along with a decent [AST](#content-nodes), and the third is the closest to YAML source, making it fast, raw, and crude.
 
 <h3>Pure JavaScript</h3>
 
