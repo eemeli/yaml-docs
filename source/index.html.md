@@ -8,13 +8,13 @@ toc_footers:
 
 includes:
   - intro
-  - pure_js
+  - parse_stringify
   - options
-  - syntax
-  - yaml_documents
+  - documents
   - content_nodes
   - cst_parser
   - errors
+  - yaml_syntax
 
 search: true
 ---

@@ -1,6 +1,6 @@
-# Syntax and Schema
+# YAML Syntax
 
-A YAML schema is a combination of a set of tags and a mechanism for resolving non-specific tags, i.e. values that do not have an explicit tag such as `!!int`. The default schema is the `'core'` schema, which is the recommended one for YAML 1.2. For YAML 1.0 and YAML 1.1 documents the default is `'yaml-1.1'`.
+A YAML _schema_ is a combination of a set of tags and a mechanism for resolving non-specific tags, i.e. values that do not have an explicit tag such as `!!int`. The [default schema](#data-schemas) is the `'core'` schema, which is the recommended one for YAML 1.2. For YAML 1.0 and YAML 1.1 documents the default is `'yaml-1.1'`.
 
 ## Tags
 

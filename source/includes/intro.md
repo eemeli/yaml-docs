@@ -19,9 +19,9 @@ The library is released under the ISC open source license, and the code is [avai
 
 ## API Overview
 
-The API provided by `yaml` has three layers, depending on how deep you need to go: [Pure JavaScript](#pure-javascript), [YAML Documents](#yaml-documents), and the [CST Parser](#cst-parser). The first has the simplest API and "just works", the second gets you all the bells and whistles supported by the library along with a decent [AST](#content-nodes), and the third is the closest to YAML source, making it fast, raw, and crude.
+The API provided by `yaml` has three layers, depending on how deep you need to go: [Parse & Stringify](#parse-amp-stringify), [Documents](#documents), and the [CST Parser](#cst-parser). The first has the simplest API and "just works", the second gets you all the bells and whistles supported by the library along with a decent [AST](#content-nodes), and the third is the closest to YAML source, making it fast, raw, and crude.
 
-<h3>Pure JavaScript</h3>
+<h3>Parse & Stringify</h3>
 
 ```js
 import YAML from 'yaml'
@@ -32,7 +32,7 @@ const YAML = require('yaml')
 - [`YAML.parse(str, options): value`](#yaml-parse)
 - [`YAML.stringify(value, options): string`](#yaml-stringify)
 
-<h3>YAML Documents</h3>
+<h3>Documents</h3>
 
 - [`YAML.createNode(value, wrapScalars, tag): Node`](#creating-nodes)
 - [`YAML.defaultOptions`](#options)

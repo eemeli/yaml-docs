@@ -1,4 +1,4 @@
-# YAML Documents
+# Documents
 
 In order to work with YAML features not directly supported by native JavaScript data types, such as comments and non-string keys, `yaml` provides the `YAML.Document` API.
 

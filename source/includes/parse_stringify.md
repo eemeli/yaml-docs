@@ -1,4 +1,4 @@
-# Pure JavaScript
+# Parse & Stringify
 
 ```yaml
 # file.yml
