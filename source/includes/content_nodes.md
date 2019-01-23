@@ -56,11 +56,44 @@ class Seq extends Node {
 }
 ```
 
-Within a YAML document, two forms of collections are supported: sequential `Seq` collections and key-value `Map` collections. The JavaScript representations of these collections both have an `items` array, which may (`Seq`) or must (`Map`) consist of `Pair` objects that contain a `key` and a `value` of any type, including `null`. The `items` array of a `Seq` object may contain values of any type.
+Within all YAML documents, two forms of collections are supported: sequential `Seq` collections and key-value `Map` collections. The JavaScript representations of these collections both have an `items` array, which may (`Seq`) or must (`Map`) consist of `Pair` objects that contain a `key` and a `value` of any type, including `null`. The `items` array of a `Seq` object may contain values of any type.
 
 When stringifying collections, by default block notation will be used. Flow notation will be selected if `type` is `FLOW_MAP` or `FLOW_SEQ`, the collection is within a surrounding flow collection, or if the collection is in an implicit key.
 
 The `yaml-1.1` schema includes [additional collections](https://yaml.org/type/index.html) that are based on `Map` and `Seq`: `OMap` and `Pairs` are sequences of `Pair` objects (`OMap` requires unique keys & corresponds to the JS Map object), and `Set` is a map of keys with null values that corresponds to the JS Set object.
+
+All of the collections provide the following accessor methods:
+
+| Method                      | Returns   | Description                                                                                                                                                                                       |
+| --------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| add(value)                  | `void`    | Adds a value to the collection. For `!!map` and `!!omap` the value must be a Pair instance or a `{ key, value }` object, which may not have a key that already exists in the map.                 |
+| delete(key)                 | `boolean` | Removes a value from the collection. Returns `true` if the item was found and removed.                                                                                                            |
+| get(key,&nbsp;[keepScalar]) | `any`     | Returns item at `key`, or `undefined` if not found. By default unwraps scalar values from their surrounding node; to disable set `keepScalar` to `true` (collections are always returned intact). |
+| has(key)                    | `boolean` | Checks if the collection includes a value with the key `key`.                                                                                                                                     |
+| set(key, value)             | `any`     | Sets a value in this collection. For `!!set`, `value` needs to be a boolean to add/remove the item from the set.                                                                                  |
+
+```js
+const map = YAML.createNode({ a: 1, b: [2, 3] })
+map.add({ key: 'c', value: 4 })
+  // -> map.get('c') === 4 && map.has('c') === true
+map.addIn(['b'], 5) // -> map.getIn(['b', 2]) === 5
+map.delete('c') // true
+map.deleteIn(['c', 'f']) // false
+map.get('a') // 1
+map.get(YAML.createNode('a'), true) // Scalar { value: 1 }
+map.getIn(['b', 1]) // 3
+map.has('c') // false
+map.hasIn(['b', '0']) // true
+map.set('c', null)
+  // -> map.get('c') === null && map.has('c') === true
+map.setIn(['c', 'x'])
+  // throws Error:
+  // Expected YAML collection at c. Remaining path: x
+```
+
+For all of these methods, the keys may be nodes or their wrapped scalar values (i.e. `42` will match `Scalar { value: 42 }`) . Keys for `!!seq` should be positive integers, or their string representations. `add()` and `set()` do not automatically call `createNode()` to wrap the value.
+
+Each of the methods also has a variant that requires an iterable as the first parameter, and allows fetching or modifying deeper collections: `addIn(path, value)`, `deleteIn(path)`, `getIn(path, keepScalar)`, `hasIn(path)`, `setIn(path, value)`. `getIn` and `hasIn` will return `undefined` or `false` (respectively) if any of the intermediate collections is not found or if the key path attempts to extend within a scalar value, but the others will throw an error in such cases. Note that for `addIn` the path argument points to the collection rather than the item.
 
 ## Alias Nodes
 

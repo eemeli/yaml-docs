@@ -75,15 +75,6 @@ The `contents` of a parsed document will always consist of `Scalar`, `Map`, `Seq
 | version       | `string?`                           | The parsed version of the source document; if true-ish, stringified output will include a `%YAML` directive.                                 |
 | warnings      | `Error[]`                           | Warnings encountered during parsing.                                                                                                         |
 
-| Method                       | Return&nbsp;type | Description                                                                                                                                                     |
-| ---------------------------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| listNonDefaultTags()         | `string[]`       | List the tags used in the document that are not in the default `tag:yaml.org,2002:` namespace.                                                                  |
-| parse(cst)                   | `Document`       | Parse a CST into this document                                                                                                                                  |
-| setSchema()                  | `void`           | When a document is created with `new YAML.Document()`, the schema object is not set as it may be influenced by parsed directives; call this to set it manually. |
-| setTagPrefix(handle, prefix) | `undefined`      | Set `handle` as a shorthand string for the `prefix` tag namespace.                                                                                              |
-| toJSON()                     | `any`            | A plain JavaScript representation of the document `contents`.                                                                                                   |
-| toString()                   | `string`         | A YAML representation of the document.                                                                                                                          |
-
 ```js
 const doc = new YAML.Document()
 doc.version = true
@@ -103,7 +94,28 @@ The Document members are all modifiable, though it's unlikely that you'll have r
 
 During stringification, a document with a true-ish `version` value will include a `%YAML` directive; the version number will be set to `1.2` unless the `yaml-1.1` schema is in use.
 
-**`parse(cst)`** is mostly an internal method, modifying the document according to the contents of the parsed `cst`. Calling this multiple times on a Document is not recommended.
+## Document Methods
+
+| Method                       | Returns    | Description                                                                                                                                                                                    |
+| ---------------------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| listNonDefaultTags()         | `string[]` | List the tags used in the document that are not in the default `tag:yaml.org,2002:` namespace.                                                                                                 |
+| parse(cst)                   | `Document` | Parse a CST into this document. Mostly an internal method, modifying the document according to the contents of the parsed `cst`. Calling this multiple times on a Document is not recommended. |
+| setSchema()                  | `void`     | When a document is created with `new YAML.Document()`, the schema object is not set as it may be influenced by parsed directives; call this to set it manually.                                |
+| setTagPrefix(handle, prefix) | `void`     | Set `handle` as a shorthand string for the `prefix` tag namespace.                                                                                                                             |
+| toJSON()                     | `any`      | A plain JavaScript representation of the document `contents`.                                                                                                                                  |
+| toString()                   | `string`   | A YAML representation of the document.                                                                                                                                                         |
+
+```js
+const doc = YAML.parseDocument('a: 1\nb: [2, 3]\n')
+doc.get('a') // 1
+doc.getIn([]) // YAMLMap { items: [Pair, Pair], ... }
+doc.hasIn(['b', 0]) // true
+doc.addIn(['b'], 4) // -> doc.get('b').items.length === 3
+doc.deleteIn(['b', 1]) // true
+doc.getIn(['b', 1]) // 4
+```
+
+In addition to the above, the document object also provides the same **accessor methods** as [collections](#collections), based on the top-level collection: `add`, `delete`, `get`, `has`, and `set`, along with their deeper variants `addIn`, `deleteIn`, `getIn`, `hasIn`, and `setIn`. For the `*In` methods using an empty `path` value (i.e. `null`, `undefined`, or `[]`) will refer to the document's top-level `contents`.
 
 To define a tag prefix to use when stringifying, use **`setTagPrefix(handle, prefix)`** rather than setting a value directly in `tagPrefixes`. This will guarantee that the `handle` is valid (by throwing an error), and will overwrite any previous definition for the `handle`. Use an empty `prefix` value to remove a prefix.
 
@@ -136,14 +148,14 @@ A description of [alias and merge nodes](#alias-nodes) is included in the next s
 
 #### `YAML.Document#anchors`
 
-| Method                                 | Return&nbsp;type | Description                                                                                                                |
-| -------------------------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| createAlias(node: Node, name?: string) | `Alias`          | Create a new `Alias` node, adding the required anchor for `node`. If `name` is empty, a new anchor name will be generated. |
-| createMergePair(...Node)               | `Merge`          | Create a new `Merge` node with the given source nodes. Non-`Alias` sources will be automatically wrapped.                  |
-| getName(node: Node)                    | `string?`        | The anchor name associated with `node`, if set.                                                                            |
-| getNode(name: string)                  | `Node?`          | The node associated with the anchor `name`, if set.                                                                        |
-| newName(prefix: string)                | `string`         | Find an available anchor name with the given `prefix` and a numerical suffix.                                              |
-| setAnchor(node: Node, name?: string)   | `string?`        | Associate an anchor with `node`. If `name` is empty, a new name will be generated.                                         |
+| Method                                 | Returns   | Description                                                                                                                |
+| -------------------------------------- | --------- | -------------------------------------------------------------------------------------------------------------------------- |
+| createAlias(node: Node, name?: string) | `Alias`   | Create a new `Alias` node, adding the required anchor for `node`. If `name` is empty, a new anchor name will be generated. |
+| createMergePair(...Node)               | `Merge`   | Create a new `Merge` node with the given source nodes. Non-`Alias` sources will be automatically wrapped.                  |
+| getName(node: Node)                    | `string?` | The anchor name associated with `node`, if set.                                                                            |
+| getNode(name: string)                  | `Node?`   | The node associated with the anchor `name`, if set.                                                                        |
+| newName(prefix: string)                | `string`  | Find an available anchor name with the given `prefix` and a numerical suffix.                                              |
+| setAnchor(node: Node, name?: string)   | `string?` | Associate an anchor with `node`. If `name` is empty, a new name will be generated.                                         |
 
 ```js
 const src = '[{ a: A }, { b: B }]'
