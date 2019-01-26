@@ -126,6 +126,7 @@ class Node {
   context: {
     atLineStart: boolean, // is this node the first one on this line
     indent: number,     // current level of indentation (may be -1)
+    root: CSTDocument,  // a reference to the parent document
     src: string         // the full original source
   },
   error: ?Error,        // if not null, indicates a parser failure
@@ -140,6 +141,9 @@ class Node {
                         //   source value when stringified
   +anchor: ?string,     // anchor, if set
   +comment: ?string,    // newline-delimited comment(s), if any
+  +rangeAsLinePos:      // human-friendly source location
+    ?{ start: LinePos, end: ?LinePos },
+    // LinePos here is { line: number, col: number }
   +rawValue: ?string,   // an unprocessed slice of context.src
                         //   determining this node's value
   +tag:                 // this node's tag, if set
