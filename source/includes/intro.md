@@ -15,7 +15,7 @@ yarn add yaml
 - Can accept any string as input without throwing, parsing as much YAML out of it as it can, and
 - Supports parsing, modifying, and writing YAML comments.
 
-The library is released under the ISC open source license, and the code is [available on GitHub](https://github.com/eemeli/yaml/). It runs on Node.js 6 and later with no external dependencies, and in browsers from IE 11 upwards using `@babel/runtime` (Note: not included in dependencies, install separately).
+The library is released under the ISC open source license, and the code is [available on GitHub](https://github.com/eemeli/yaml/). It runs on Node.js 6 and later with no external dependencies, and in browsers from IE 11 upwards (Note: `@babel/runtime` is used only by the `"browser"` entry point).
 
 ## API Overview
 
