@@ -22,6 +22,7 @@ The `version` option value (`'1.2'` by default) may be overridden by any documen
 
 | Option          | Type                                                             | Description                                                                                                                                          |
 | --------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| anchorPrefix    | `string`                                                         | Default prefix for anchors. By default `'a'`, resulting in anchors `a1`, `a2`, etc.                                                                  |
 | keepBlobsInJSON | `boolean`                                                        | Allow non-JSON JavaScript objects to remain in the `toJSON` output. Relevant with the YAML 1.1 `!!timestamp` and `!!binary` tags. By default `true`. |
 | keepCstNodes    | `boolean`                                                        | Include references in the AST to each node's corresponding CST node. By default `false`.                                                             |
 | keepNodeTypes   | `boolean`                                                        | Store the original node type when parsing documents. By default `true`.                                                                              |
