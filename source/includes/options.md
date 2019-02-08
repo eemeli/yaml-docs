@@ -67,49 +67,6 @@ mergeResult.target
 
 **Merge** keys are a [YAML 1.1 feature](http://yaml.org/type/merge.html) that is not a part of the 1.2 spec. To use a merge key, assign an alias node or an array of alias nodes as the value of a `<<` key in a mapping.
 
-## Custom Tags
-
-```js
-import { binary } from 'yaml/types/binary'
-import { timestamp } from 'yaml/types/timestamp'
-
-YAML.parse('!!timestamp 2001-12-15 2:59:43')
-// YAMLWarning:
-//   The tag tag:yaml.org,2002:timestamp is unavailable,
-//   falling back to tag:yaml.org,2002:str
-// '2001-12-15 2:59:43'
-
-YAML.defaultOptions.tags = [binary, timestamp]
-
-YAML.parse('2001-12-15 2:59:43')
-// 2001-12-15T02:59:43.000Z
-
-const doc = YAML.parseDocument('2001-12-15 2:59:43')
-doc.contents.value.toDateString()
-// 'Sat Dec 15 2001'
-```
-
-The easiest way to extend a schema is by defining the additional **tags** that you wish to support. For further customisation, `tags` may also be a function `(Tag[]) => (Tag[])` that may modify the schema's base tag array.
-
-The `!!binary` and `!!timestamp` YAML 1.1 tags are available as exports under `yaml/types/`, should you wish to use them with the YAML 1.2 `core` schema.
-
-If you wish to implement your own custom tags, the [`!!binary`](https://github.com/eemeli/yaml/blob/master/src/schema/_binary.js) and [`!!timestamp`](https://github.com/eemeli/yaml/blob/master/src/schema/_timestamp.js) tags provide relatively cohesive examples to study.
-
-<h4 id="tag" style="clear:both"><code>Tag</code></h4>
-
-| Member     | Type           | Description                                                                                                                                                                                                                                                   |
-| ---------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| class      | `class?`       | A JavaScript class that should be matched to this tag, e.g. `Date` for `!!timestamp`.                                                                                                                                                                         |
-| createNode | `function?`    | Optional factory function, used e.g. by collections. If set, will be called as `createNode(schema, value, wrapScalars)` and should return a class extending `Node`.                                                                                           |
-| default    | `boolean?`     | If `true`, the tag should not be explicitly included when stringifying.                                                                                                                                                                                       |
-| format     | `string?`      | If a tag has multiple forms that should be parsed and/or stringified differently, use `format` to identify them.                                                                                                                                              |
-| nodeClass  | `class?`       | The `Node` child class that implements this tag. Required for collections and tags that have overlapping JS representations.                                                                                                                                  |
-| options    | `object?`      | Used by some tags to configure their stringification, where applicable.                                                                                                                                                                                       |
-| resolve    | `() => Node`   | Should return an instance of a class extending `Node`. If `test` is set, will be called with the resulting match as arguments. Otherwise, will be called as `resolve(doc, cstNode)`.                                                                          |
-| stringify  | `() => string` | Called as `stringify(item, ctx, onComment)`, where `item` is the node being stringified, `ctx` contains the stringifying context variables, and `onComment` is a function that should be called if the stringifier includes the item's comment in its output. |
-| tag        | `string`       | The fully qualified name of the tag.                                                                                                                                                                                                                          |
-| test       | `RegExp?`      | Used to match string values of scalar nodes; captured parts will be passed as arguments of `resolve()`.                                                                                                                                                       |
-
 ## Tag Stringifier Options
 
 ```js

@@ -12,6 +12,7 @@ includes:
   - options
   - documents
   - content_nodes
+  - custom_tags
   - cst_parser
   - errors
   - yaml_syntax
