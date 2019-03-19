@@ -70,7 +70,7 @@ mergeResult.target
 ## Tag Stringifier Options
 
 ```js
-import { nullOptions, strOptions } from 'yaml/schema'
+import { nullOptions, strOptions } from 'yaml/types'
 
 YAML.stringify({ 'this is': null })
 // this is: null
@@ -89,6 +89,6 @@ YAML.stringify({ 'this is': null })
 // 'this is': ~
 ```
 
-To customise the YAML stringification, the `nullOptions` and `strOptions` objects are exported from `'yaml/schema'`. Note that these values are used by all documents. For example, to disable the automatic line wrapping, set `strOptions.fold.lineWidth` to `0`.
+To customise the YAML stringification, the `nullOptions` and `strOptions` objects are exported from `'yaml/types'`. Note that these values are used by all documents. For example, to disable the automatic line wrapping, set `strOptions.fold.lineWidth` to `0`.
 
-The optional `!!binary` type (available at `'yaml/types/binary'`) also provides for some configuration via its `options` object.
+The optional `!!binary` type (available as `binary` from `'yaml/types'`) also provides for some configuration via its `options` object.

@@ -1,8 +1,7 @@
 # Custom Data Types
 
 ```js
-import { binary } from 'yaml/types/binary'
-import { timestamp } from 'yaml/types/timestamp'
+import { binary, timestamp } from 'yaml/types'
 
 YAML.parse('!!timestamp 2001-12-15 2:59:43')
 // YAMLWarning:
@@ -22,12 +21,12 @@ doc.contents.value.toDateString()
 
 The easiest way to extend a [schema](#data-schemas) is by defining the additional **tags** that you wish to support. For further customisation, `tags` may also be a function `(Tag[]) => (Tag[])` that may modify the schema's base tag array.
 
-YAML 1.1 tags are available as exports under `yaml/types/`, should you wish to use them with the YAML 1.2 `core` schema.
+YAML 1.1 tags are available as exports of `yaml/types`, should you wish to use them with the YAML 1.2 `core` schema.
 
 ## Writing Custom Tags
 
 ```js
-import { stringify } from 'yaml/schema'
+import { stringifyString } from 'yaml/util'
 
 const regexp = {
   identify: value => value instanceof RegExp,
@@ -46,7 +45,7 @@ const sharedSymbol = {
     const key = Symbol.keyFor(item.value)
     if (key === undefined)
       throw new Error('Only shared symbols are supported')
-    return stringify({ value: key }, ctx, onComment, onChompKeep)
+    return stringifyString({ value: key }, ctx, onComment, onChompKeep)
   }
 }
 
@@ -66,15 +65,15 @@ To define your own tag, you'll need to define three or four things:
 
 1. **`identify(value): boolean`** is used by `YAML.createNode` to detect your data type, e.g. using `typeof` or `instanceof`.
 2. **`tag`** is the string identifier for your data type, with which its stringified form will be prefixed. Should either be a !-prefixed local `!tag`, or a fully qualified `tag:domain,date:foo`.
-3. **`resolve(doc, cst): any`** turns a `cst` node into its encoded value; `doc` is the resulting `YAML.Document` instance.
+3. **`resolve(doc, cst): Node`** turns a CST node into an AST node; `doc` is the resulting `YAML.Document` instance.
 4. **`stringify(item, ctx, onComment, onChompKeep): string`** is an optional function stringifying the `item` AST node in the current context `ctx`. `onComment` and `onChompKeep` are callback functions for a couple of special cases. If your data includes a suitable `.toString()` method, you can probably leave this undefined and use the default stringifier.
 
-If you wish to implement your own custom tags, the [`!!binary`](https://github.com/eemeli/yaml/blob/master/src/schema/_binary.js) and [`!!timestamp`](https://github.com/eemeli/yaml/blob/master/src/schema/_timestamp.js) tags provide relatively cohesive examples to study.
+If you wish to implement your own custom tags, the [`!!binary`](https://github.com/eemeli/yaml/blob/master/src/tags/yaml-1.1/binary.js) and [`!!set`](https://github.com/eemeli/yaml/blob/master/src/tags/yaml-1.1/set.js) tags provide relatively cohesive examples to study.
 
 The default schema types also include a few additional properties:
 
 - `test` and `default` allow for values to be stringified without an explicit tag and detected using a regular expression. For most cases, it's unlikely that you'll actually want to use these, even if you first think you do.
-- `createNode` is an optional factory function, used e.g. by collections. If set, will be called as `createNode(schema, value, wrapScalars)` and should return a class extending `Node`.
+- `createNode` is an optional factory function, used e.g. by collections when wrapping JS objects as AST nodes. If set, will be called as `createNode(schema, value, wrapScalars)` and should return a class extending `Node`.
 - `nodeClass` is the `Node` child class that implements this tag. Required for collections and tags that have overlapping JS representations.
 - If a tag has multiple forms that should be parsed and/or stringified differently, use `format` to identify them.
 - `options` are used by some tags to configure their stringification.

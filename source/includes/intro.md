@@ -46,14 +46,12 @@ const YAML = require('yaml')
 - [`YAML.parseDocument(str, options): YAML.Document`](#parsing-documents)
 
 ```js
-import Map from 'yaml/map'
-import Pair from 'yaml/pair'
-import Seq from 'yaml/seq'
+import { Pair, YAMLMap, YAMLSeq } from 'yaml/types'
 ```
 
-- [`new Map()`](#creating-nodes)
 - [`new Pair(key, value)`](#creating-nodes)
-- [`new Seq()`](#creating-nodes)
+- [`new YAMLMap()`](#creating-nodes)
+- [`new YAMLSeq()`](#creating-nodes)
 
 <h3>CST Parser</h3>
 

@@ -166,11 +166,10 @@ The primary purpose of this function is to enable attaching comments or other me
 
 ```js
 import YAML from 'yaml'
-import Pair from 'yaml/pair'
-import Seq from 'yaml/seq'
+import { Pair, YAMLSeq } from 'yaml/types'
 
 const doc = new YAML.Document()
-doc.contents = new Seq()
+doc.contents = new YAMLSeq()
 doc.contents.items = [
   'some values',
   42,
@@ -186,9 +185,9 @@ doc.toString()
 // - 1: a number
 ```
 
-To construct a `Seq` or `Map`, use [`YAML.createNode()`](#yaml-createnode) with array, object or iterable input, or create the collections directly by importing the classes from `yaml/seq` and `yaml/map`.
+To construct a `YAMLSeq` or `YAMLMap`, use [`YAML.createNode()`](#yaml-createnode) with array, object or iterable input, or create the collections directly by importing the classes from `yaml/types`.
 
-Once created, normal array operations may be used to modify the `items` array. New `Pair` objects may created by importing the class from `yaml/pair` and using its `new Pair(key, value)` constructor.
+Once created, normal array operations may be used to modify the `items` array. New `Pair` objects may created by importing the class from `yaml/types` and using its `new Pair(key, value)` constructor.
 
 ## Comments
 

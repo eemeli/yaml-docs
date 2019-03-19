@@ -41,7 +41,7 @@ The public API of the CST layer is a single function which returns an array of p
 
 Care should be taken when modifying the CST, as no error checks are included to verify that the resulting YAML is valid, or that e.g. indentation levels aren't broken. In other words, this is an engineering tool and you may hurt yourself. If you're looking to generate a brand new YAML document, see the section on [Creating Documents](#creating-documents).
 
-For more usage examples and CST trees, have a look through the [extensive test suite](https://github.com/eemeli/yaml/tree/master/__tests__/cst) included in the project's repository.
+For more usage examples and CST trees, have a look through the [extensive test suite](https://github.com/eemeli/yaml/tree/master/tests/cst) included in the project's repository.
 
 <h3 style="clear:both">Error detection</h3>
 

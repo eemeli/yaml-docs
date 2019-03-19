@@ -120,7 +120,7 @@ In addition to the above, the document object also provides the same **accessor 
 To define a tag prefix to use when stringifying, use **`setTagPrefix(handle, prefix)`** rather than setting a value directly in `tagPrefixes`. This will guarantee that the `handle` is valid (by throwing an error), and will overwrite any previous definition for the `handle`. Use an empty `prefix` value to remove a prefix.
 
 ```js
-import { timestamp } from 'yaml/types/timestamp'
+import { timestamp } from 'yaml/types'
 
 const src = '1969-07-21T02:56:15Z'
 const doc = YAML.parseDocument(src, { tags: [timestamp] })
