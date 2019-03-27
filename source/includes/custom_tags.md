@@ -1,17 +1,15 @@
 # Custom Data Types
 
 ```js
-import { binary, timestamp } from 'yaml/types'
-
 YAML.parse('!!timestamp 2001-12-15 2:59:43')
 // YAMLWarning:
 //   The tag tag:yaml.org,2002:timestamp is unavailable,
 //   falling back to tag:yaml.org,2002:str
 // '2001-12-15 2:59:43'
 
-YAML.defaultOptions.tags = [binary, timestamp]
+YAML.defaultOptions.tags = ['timestamp']
 
-YAML.parse('2001-12-15 2:59:43')
+YAML.parse('2001-12-15 2:59:43') // returns a Date instance
 // 2001-12-15T02:59:43.000Z
 
 const doc = YAML.parseDocument('2001-12-15 2:59:43')
@@ -21,7 +19,19 @@ doc.contents.value.toDateString()
 
 The easiest way to extend a [schema](#data-schemas) is by defining the additional **tags** that you wish to support. For further customisation, `tags` may also be a function `(Tag[]) => (Tag[])` that may modify the schema's base tag array.
 
-YAML 1.1 tags are available as exports of `yaml/types`, should you wish to use them with the YAML 1.2 `core` schema.
+## Built-in Custom Tags
+
+For ease of use, the tags that are a part of the `yaml-1.1` schema but not the default `core` schema may be referred to by their string identifiers.
+
+| Identifier    | YAML Type                                             | JS Type      | Description                                                                                                                                                                        |
+| ------------- | ----------------------------------------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `'binary'`    | [`!!binary`](https://yaml.org/type/binary.html)       | `Uint8Array` | Binary data, represented in YAML as base64 encoded characters.                                                                                                                     |
+| `'floatTime'` | [`!!float`](https://yaml.org/type/float.html)         | `Number`     | Sexagesimal floating-point number format, e.g. `190:20:30.15`. To stringify with this tag, the node `format` must be `'TIME'`.                                                     |
+| `'intTime'`   | [`!!int`](https://yaml.org/type/int.html)             | `Number`     | Sexagesimal integer number format, e.g. `190:20:30`. To stringify with this tag, the node `format` must be `'TIME'`.                                                               |
+| `'omap'`      | [`!!omap`](https://yaml.org/type/omap.html)           | `Map`        | Ordered sequence of key: value pairs without duplicates. Using `mapAsMap: true` together with this tag is not recommended, as it makes the parse → stringify loop non-idempotent.  |
+| `'pairs'`     | [`!!pairs`](https://yaml.org/type/pairs.html)         | `Array`      | Ordered sequence of key: value pairs allowing duplicates. To create from JS, you'll need to explicitly use `'!!pairs'` as the third argument of [`createNode()`](#creating-nodes). |
+| `'set'`       | [`!!set`](https://yaml.org/type/set.html)             | `Set`        | Unordered set of non-equal values.                                                                                                                                                 |
+| `'timestamp'` | [`!!timestamp`](https://yaml.org/type/timestamp.html) | `Date`       | A point in time.                                                                                                                                                                   |
 
 ## Writing Custom Tags
 
@@ -43,8 +53,7 @@ const sharedSymbol = {
   resolve: (doc, cst) => Symbol.for(cst.strValue),
   stringify(item, ctx, onComment, onChompKeep) {
     const key = Symbol.keyFor(item.value)
-    if (key === undefined)
-      throw new Error('Only shared symbols are supported')
+    if (key === undefined) throw new Error('Only shared symbols are supported')
     return stringifyString({ value: key }, ctx, onComment, onChompKeep)
   }
 }

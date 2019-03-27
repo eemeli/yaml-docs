@@ -70,25 +70,34 @@ mergeResult.target
 ## Tag Stringifier Options
 
 ```js
-import { nullOptions, strOptions } from 'yaml/types'
+import {
+  binaryOptions,
+  boolOptions,
+  nullOptions,
+  strOptions
+} from 'yaml/types'
 
-YAML.stringify({ 'this is': null })
-// this is: null
+binaryOptions // Used by !!binary, part of the yaml-1.1 schema
+// { defaultType: 'BLOCK_LITERAL', lineWidth: 76 }
+
+boolOptions
+// { trueStr: 'true', falseStr: 'false' }
 
 nullOptions
 // { nullStr: 'null' }
-nullOptions.nullStr = '~'
 
 strOptions
 // { defaultType: 'PLAIN',
 //   doubleQuoted: { jsonEncoding: false, minMultiLineLength: 40 },
 //   fold: { lineWidth: 80, minContentWidth: 20 } }
-strOptions.defaultType = 'QUOTE_SINGLE'
 
+YAML.stringify({ 'this is': null })
+// this is: null
+
+nullOptions.nullStr = '~'
+strOptions.defaultType = 'QUOTE_SINGLE'
 YAML.stringify({ 'this is': null })
 // 'this is': ~
 ```
 
-To customise the YAML stringification, the `nullOptions` and `strOptions` objects are exported from `'yaml/types'`. Note that these values are used by all documents. For example, to disable the automatic line wrapping, set `strOptions.fold.lineWidth` to `0`.
-
-The optional `!!binary` type (available as `binary` from `'yaml/types'`) also provides for some configuration via its `options` object.
+To customise the YAML stringification, some options objects are exported from `'yaml/types'`. Note that these values are used by all documents. For example, to disable the automatic line wrapping, set `strOptions.fold.lineWidth` to `0`.
