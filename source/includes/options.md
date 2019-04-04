@@ -20,17 +20,20 @@ YAML.Document.defaults
 
 The `version` option value (`'1.2'` by default) may be overridden by any document-specific `%YAML` directive.
 
-| Option          | Type                                                             | Description                                                                                                                                          |
-| --------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| anchorPrefix    | `string`                                                         | Default prefix for anchors. By default `'a'`, resulting in anchors `a1`, `a2`, etc.                                                                  |
-| keepBlobsInJSON | `boolean`                                                        | Allow non-JSON JavaScript objects to remain in the `toJSON` output. Relevant with the YAML 1.1 `!!timestamp` and `!!binary` tags. By default `true`. |
-| keepCstNodes    | `boolean`                                                        | Include references in the AST to each node's corresponding CST node. By default `false`.                                                             |
-| keepNodeTypes   | `boolean`                                                        | Store the original node type when parsing documents. By default `true`.                                                                              |
-| mapAsMap        | `boolean`                                                        | When outputting JS, use Map rather than Object to represent mappings. By default `false`.                                                            |
-| merge           | `boolean`                                                        | Enable support for `<<` merge keys.                                                                                                                  |
-| schema          | `'core'` &vert; `'failsafe'` &vert; `'json'` &vert; `'yaml-1.1'` | The base schema to use. By default `'core'` for YAML 1.2 and `'yaml-1.1'` for earlier versions.                                                      |
-| tags            | [`Tag[]`](#tag) &vert; `function`                                | Array of additional (custom) tags to include in the schema                                                                                           |
-| version         | `string`                                                         | The YAML version used by documents without a `%YAML` directive. By default `'1.2'`.                                                                  |
+| Option          | Type                                                             | Description                                                                                                                                                     |
+| --------------- | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| anchorPrefix    | `string`                                                         | Default prefix for anchors. By default `'a'`, resulting in anchors `a1`, `a2`, etc.                                                                             |
+| keepBlobsInJSON | `boolean`                                                        | Allow non-JSON JavaScript objects to remain in the `toJSON` output. Relevant with the YAML 1.1 `!!timestamp` and `!!binary` tags. By default `true`.            |
+| keepCstNodes    | `boolean`                                                        | Include references in the AST to each node's corresponding CST node. By default `false`.                                                                        |
+| keepNodeTypes   | `boolean`                                                        | Store the original node type when parsing documents. By default `true`.                                                                                         |
+| mapAsMap        | `boolean`                                                        | When outputting JS, use Map rather than Object to represent mappings. By default `false`.                                                                       |
+| maxAliasCount   | `number`                                                         | Prevent [exponential entity expansion attacks] by limiting data aliasing count; set to `-1` to disable checks; `0` disallows all alias nodes. By default `100`. |
+| merge           | `boolean`                                                        | Enable support for `<<` merge keys. By default `false` for YAML 1.2 and `true` for earlier versions.                                                            |
+| schema          | `'core'` &vert; `'failsafe'` &vert; `'json'` &vert; `'yaml-1.1'` | The base schema to use. By default `'core'` for YAML 1.2 and `'yaml-1.1'` for earlier versions.                                                                 |
+| tags            | [`Tag[]`](#tag) &vert; `function`                                | Array of additional (custom) tags to include in the schema                                                                                                      |
+| version         | `string`                                                         | The YAML version used by documents without a `%YAML` directive. By default `'1.2'`.                                                                             |
+
+[exponential entity expansion attacks]: https://en.wikipedia.org/wiki/Billion_laughs_attack
 
 ## Data Schemas
 
