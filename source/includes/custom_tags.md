@@ -7,7 +7,7 @@ YAML.parse('!!timestamp 2001-12-15 2:59:43')
 //   falling back to tag:yaml.org,2002:str
 // '2001-12-15 2:59:43'
 
-YAML.defaultOptions.tags = ['timestamp']
+YAML.defaultOptions.customTags = ['timestamp']
 
 YAML.parse('2001-12-15 2:59:43') // returns a Date instance
 // 2001-12-15T02:59:43.000Z
@@ -17,7 +17,7 @@ doc.contents.value.toDateString()
 // 'Sat Dec 15 2001'
 ```
 
-The easiest way to extend a [schema](#data-schemas) is by defining the additional **tags** that you wish to support. For further customisation, `tags` may also be a function `(Tag[]) => (Tag[])` that may modify the schema's base tag array.
+The easiest way to extend a [schema](#data-schemas) is by defining the additional **tags** that you wish to support. For further customisation, `customTags` may also be a function `(Tag[]) => (Tag[])` that may modify the schema's base tag array.
 
 ## Built-in Custom Tags
 
@@ -58,7 +58,7 @@ const sharedSymbol = {
   }
 }
 
-YAML.defaultOptions.tags = [regexp, sharedSymbol]
+YAML.defaultOptions.customTags = [regexp, sharedSymbol]
 
 YAML.stringify({
   regexp: /foo/gi,

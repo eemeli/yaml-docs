@@ -121,7 +121,7 @@ To define a tag prefix to use when stringifying, use **`setTagPrefix(handle, pre
 
 ```js
 const src = '1969-07-21T02:56:15Z'
-const doc = YAML.parseDocument(src, { tags: ['timestamp'] })
+const doc = YAML.parseDocument(src, { customTags: ['timestamp'] })
 
 doc.toJSON()
 // Date { 1969-07-21T02:56:15.000Z }

@@ -30,7 +30,7 @@ The `version` option value (`'1.2'` by default) may be overridden by any documen
 | maxAliasCount   | `number`                                                         | Prevent [exponential entity expansion attacks] by limiting data aliasing count; set to `-1` to disable checks; `0` disallows all alias nodes. By default `100`. |
 | merge           | `boolean`                                                        | Enable support for `<<` merge keys. By default `false` for YAML 1.2 and `true` for earlier versions.                                                            |
 | schema          | `'core'` &vert; `'failsafe'` &vert; `'json'` &vert; `'yaml-1.1'` | The base schema to use. By default `'core'` for YAML 1.2 and `'yaml-1.1'` for earlier versions.                                                                 |
-| tags            | [`Tag[]`](#tag) &vert; `function`                                | Array of additional (custom) tags to include in the schema                                                                                                      |
+| customTags      | [`Tag[]`](#tag) &vert; `function`                                | Array of additional (custom) tags to include in the schema                                                                                                      |
 | version         | `string`                                                         | The YAML version used by documents without a `%YAML` directive. By default `'1.2'`.                                                                             |
 
 [exponential entity expansion attacks]: https://en.wikipedia.org/wiki/Billion_laughs_attack
@@ -73,12 +73,7 @@ mergeResult.target
 ## Tag Stringifier Options
 
 ```js
-import {
-  binaryOptions,
-  boolOptions,
-  nullOptions,
-  strOptions
-} from 'yaml/types'
+import { binaryOptions, boolOptions, nullOptions, strOptions } from 'yaml/types'
 
 binaryOptions // Used by !!binary, part of the yaml-1.1 schema
 // { defaultType: 'BLOCK_LITERAL', lineWidth: 76 }
