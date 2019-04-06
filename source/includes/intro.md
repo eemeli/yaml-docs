@@ -36,7 +36,7 @@ const YAML = require('yaml')
 
 - [`YAML.createNode(value, wrapScalars, tag): Node`](#creating-nodes)
 - [`YAML.defaultOptions`](#options)
-- [`YAML.Document`](#yaml-documents)
+- [`YAML.Document`](#documents)
   - [`constructor(options)`](#creating-documents)
   - [`defaults`](#options)
   - [`#anchors`](#working-with-anchors)

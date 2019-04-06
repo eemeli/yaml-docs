@@ -17,11 +17,11 @@ doc.contents.value.toDateString()
 // 'Sat Dec 15 2001'
 ```
 
-The easiest way to extend a [schema](#data-schemas) is by defining the additional **tags** that you wish to support. For further customisation, `customTags` may also be a function `(Tag[]) => (Tag[])` that may modify the schema's base tag array.
+The easiest way to extend a [schema](#data-schemas) is by defining the additional **tags** that you wish to support. To do that, the `customTags` option allows you to provide an array of custom tag objects or tag identifiers. In particular, the built-in tags that are a part of the `yaml-1.1` schema but not the default `core` schema may be referred to by their string identifiers.
+
+For further customisation, `customTags` may also be a function `(Tag[]) => (Tag[])` that may modify the schema's base tag array.
 
 ## Built-in Custom Tags
-
-For ease of use, the tags that are a part of the `yaml-1.1` schema but not the default `core` schema may be referred to by their string identifiers.
 
 | Identifier    | YAML Type                                             | JS Type      | Description                                                                                                                                                                        |
 | ------------- | ----------------------------------------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -89,6 +89,19 @@ As values may be wrapped within objects and arrays, `YAML.createNode()` uses eac
 Finally, `stringify(item, ctx, ...): string` defines how your data should be represented as a YAML string, in case the default stringifiers aren't enough. For collections in particular, the default stringifier should be perfectly sufficient. `'yaml/util'` exports `stringifyNumber(item)` and `stringifyString(item, ctx, ...)`, which may be of use for custom scalar data.
 
 ### Custom Tag API
+
+```js
+import {
+  findPair, // (items, key) => Pair? -- Given a key, find a matching Pair
+  parseMap, // (doc, cstNode) => new YAMLMap
+  parseSeq, // (doc, cstNode) => new YAMLSeq
+  stringifyNumber, // (node) => string
+  stringifyString, // (node, ctx, ...) => string
+  toJSON, // (value, arg, ctx) => any -- Recursively convert to plain JS
+  Type, // { [string]: string } -- Used as enum for node types
+  YAMLReferenceError, YAMLSemanticError, YAMLSyntaxError, YAMLWarning
+} from 'yaml/util'
+```
 
 To define your own tag, you'll need to define an object comprising of some of the following fields. Those in bold are required:
 
