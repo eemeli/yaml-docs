@@ -78,7 +78,8 @@ The other major change has been to make sure that YAML 1.2 is a valid superset o
 * Tag shorthands can no longer include any of the characters `,[]{}`, but can include `#`. To work around this, either fix your tag names or use verbatim tags.
 * Anchors can no longer include any of the characters `,[]{}`.
 * Inside double-quoted strings `\/` is now a valid escape for the `/` character.
-* Quoted content can include practically all Unicode characters
+* Quoted content can include practically all Unicode characters.
+* Documents in streams are now independent of each other, and no longer inherit preceding document directives if they do not define their own.
 
 ### Changes from YAML 1.0 to 1.1
 
