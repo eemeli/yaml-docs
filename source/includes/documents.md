@@ -63,17 +63,18 @@ The `contents` of a parsed document will always consist of `Scalar`, `Map`, `Seq
 
 #### `new YAML.Document(options = {})`
 
-| Member        | Type                                | Description                                                                                                                                  |
-| ------------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| anchors       | [`Anchors`](#anchors)               | Anchors associated with the document's nodes; also provides alias & merge node creators.                                                     |
-| commentBefore | `string?`                           | A comment at the very beginning of the document. If not empty, separated from the rest of the document by a blank line when stringified.     |
-| comment       | `string?`                           | A comment at the end of the document. If not empty, separated from the rest of the document by a blank line when stringified.                |
-| contents      | [`Node`](#content-nodes)&vert;`any` | The document contents.                                                                                                                       |
-| errors        | `Error[]`                           | Errors encountered during parsing.                                                                                                           |
-| schema        | `Schema`                            | The schema used with the document.                                                                                                           |
-| tagPrefixes   | `Prefix[]`                          | Array of prefixes; each will have a string `handle` that starts and ends with `!` and a string `prefix` that the handle will be replaced by. |
-| version       | `string?`                           | The parsed version of the source document; if true-ish, stringified output will include a `%YAML` directive.                                 |
-| warnings      | `Error[]`                           | Warnings encountered during parsing.                                                                                                         |
+| Member              | Type                                | Description                                                                                                                                                              |
+| ------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| anchors             | [`Anchors`](#anchors)               | Anchors associated with the document's nodes; also provides alias & merge node creators.                                                                                 |
+| commentBefore       | `string?`                           | A comment at the very beginning of the document. If not empty, separated from the rest of the document by a blank line or the directives-end indicator when stringified. |
+| comment             | `string?`                           | A comment at the end of the document. If not empty, separated from the rest of the document by a blank line when stringified.                                            |
+| contents            | [`Node`](#content-nodes)&vert;`any` | The document contents.                                                                                                                                                   |
+| directivesEndMarker | `boolean?`                          | Whether the document should always include a directives-end marker `---` at its start, even if it includes no directives.                                                |
+| errors              | `Error[]`                           | Errors encountered during parsing.                                                                                                                                       |
+| schema              | `Schema`                            | The schema used with the document.                                                                                                                                       |
+| tagPrefixes         | `Prefix[]`                          | Array of prefixes; each will have a string `handle` that starts and ends with `!` and a string `prefix` that the handle will be replaced by.                             |
+| version             | `string?`                           | The parsed version of the source document; if true-ish, stringified output will include a `%YAML` directive.                                                             |
+| warnings            | `Error[]`                           | Warnings encountered during parsing.                                                                                                                                     |
 
 ```js
 const doc = new YAML.Document()

@@ -245,10 +245,12 @@ class CSTDocument extends Node {
   directives: Array<Comment | Directive>,
   contents: Array<ContentNode>,
   type: 'DOCUMENT',
+  directivesEndMarker: Range | null,
+  documentEndMarker: Range | null,
   +anchor: null,
   +comment: null,
   +tag: null
 }
 ```
 
-The CST tree of a valid YAML document should have a single non-`Comment` `ContentNode` in its `contents` array. Multiple values indicates that the input is malformed in a way that made it impossible to determine the proper structure of the document.
+The CST tree of a valid YAML document should have a single non-`Comment` `ContentNode` in its `contents` array. Multiple values indicates that the input is malformed in a way that made it impossible to determine the proper structure of the document. If `directivesEndMarker` or `documentEndMarker` are non-empty, the document includes (respectively) a directives-end marker `---` or a document-end marker `...` with the indicated range.
