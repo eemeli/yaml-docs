@@ -32,6 +32,7 @@ The `version` option value (`'1.2'` by default) may be overridden by any documen
 | merge           | `boolean`                                                        | Enable support for `<<` merge keys. By default `false` for YAML 1.2 and `true` for earlier versions.                                                            |
 | prettyErrors    | `boolean`                                                        | Include line position & node type directly in errors; drop their verbose source and context. By default `false`.                                                |
 | schema          | `'core'` &vert; `'failsafe'` &vert; `'json'` &vert; `'yaml-1.1'` | The base schema to use. By default `'core'` for YAML 1.2 and `'yaml-1.1'` for earlier versions.                                                                 |
+| simpleKeys      | `boolean`                                                        | When stringifying, require keys to be scalars and to use implicit rather than explicit notation. By default `false`.                                            |
 | version         | `string`                                                         | The YAML version used by documents without a `%YAML` directive. By default `'1.2'`.                                                                             |
 
 [exponential entity expansion attacks]: https://en.wikipedia.org/wiki/Billion_laughs_attack
