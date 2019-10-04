@@ -123,7 +123,7 @@ Actual values in the CST nodes are stored as `start`, `end` indices of the input
 
 ```js
 class Node {
-  context: {
+  context: {            // not enumerable, to simplify logging
     atLineStart: boolean, // is this node the first one on this line
     indent: number,     // current level of indentation (may be -1)
     root: CSTDocument,  // a reference to the parent document
