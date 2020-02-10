@@ -93,7 +93,13 @@ map.setIn(['c', 'x'])
 
 For all of these methods, the keys may be nodes or their wrapped scalar values (i.e. `42` will match `Scalar { value: 42 }`) . Keys for `!!seq` should be positive integers, or their string representations. `add()` and `set()` do not automatically call `createNode()` to wrap the value.
 
-Each of the methods also has a variant that requires an iterable as the first parameter, and allows fetching or modifying deeper collections: `addIn(path, value)`, `deleteIn(path)`, `getIn(path, keepScalar)`, `hasIn(path)`, `setIn(path, value)`. `getIn` and `hasIn` will return `undefined` or `false` (respectively) if any of the intermediate collections is not found or if the key path attempts to extend within a scalar value, but the others will throw an error in such cases. Note that for `addIn` the path argument points to the collection rather than the item.
+Each of the methods also has a variant that requires an iterable as the first parameter, and allows fetching or modifying deeper collections: `addIn(path, value)`, `deleteIn(path)`, `getIn(path, keepScalar)`, `hasIn(path)`, `setIn(path, value)`. If any intermediate node in `path` is a scalar rather than a collection, an error will be thrown. If any of the intermediate collections is not found:
+
+- `getIn` and `hasIn` will return `undefined` or `false` (respectively)
+- `addIn` and `setIn` will create missing collections; non-negative integer keys will create sequences, all other keys create maps
+- `deleteIn` will throw an error
+
+Note that for `addIn` the path argument points to the collection rather than the item; for maps its `value` should be a `Pair` or an object with `{ key, value }` fields.
 
 ## Alias Nodes
 
