@@ -17,11 +17,45 @@ doc.contents.value.toDateString()
 // 'Sat Dec 15 2001'
 ```
 
-The easiest way to extend a [schema](#data-schemas) is by defining the additional **tags** that you wish to support. To do that, the `customTags` option allows you to provide an array of custom tag objects or tag identifiers. In particular, the built-in tags that are a part of the `yaml-1.1` schema but not the default `core` schema may be referred to by their string identifiers.
+The easiest way to extend a [schema](#data-schemas) is by defining the additional **tags** that you wish to support. To do that, the `customTags` option allows you to provide an array of custom tag objects or tag identifiers. In particular, the built-in tags that are a part of the `core` and `yaml-1.1` schemas may be referred to by their string identifiers. For those tags that are available in both, only the `core` variant is provided as a custom tag.
 
 For further customisation, `customTags` may also be a function `(Tag[]) => (Tag[])` that may modify the schema's base tag array.
 
 ## Built-in Custom Tags
+
+```js
+YAML.parse('[ one, true, 42 ]').map(v => typeof v)
+// [ 'string', 'boolean', 'number' ]
+
+let opt = { schema: 'failsafe' }
+YAML.parse('[ one, true, 42 ]', opt).map(v => typeof v)
+// [ 'string', 'string', 'string' ]
+
+opt = { schema: 'failsafe', customTags: ['int'] }
+YAML.parse('[ one, true, 42 ]', opt).map(v => typeof v)
+// [ 'string', 'string', 'number' ]
+```
+
+### YAML 1.2 Core Schema
+
+These tags are a part of the YAML 1.2 [Core Schema](https://yaml.org/spec/1.2/spec.html#id2804923), and may be useful when constructing a parser or stringifier for a more limited set of types, based on the `failsafe` schema. Some of these define a `format` value; this will be added to the parsed nodes and affects the node's stringification.
+
+If including more than one custom tag from this set, make sure that the `'float'` and `'int'` tags precede any of the other `!!float` and `!!int` tags.
+
+| Identifier   | Regular expression                               | YAML Type | Format  | Example values  |
+| ------------ | ------------------------------------------------ | --------- | ------- | --------------- |
+| `'bool'`     | `true⎮True⎮TRUE⎮false⎮False⎮FALSE`               | `!!bool`  |         | `true`, `false` |
+| `'float'`    | `[-+]?(0⎮[1-9][0-9]*)\.[0-9]*`                   | `!!float` |         | `4.2`, `-0.0`   |
+| `'floatExp'` | `[-+]?(0⎮[1-9][0-9]*)(\.[0-9]*)?[eE][-+]?[0-9]+` | `!!float` | `'EXP'` | `4.2e9`         |
+| `'floatNaN'` | `[-+]?(\.inf⎮\.Inf⎮\.INF)⎮\.nan⎮\.NaN⎮\.NAN`     | `!!float` |         | `-Infinity`     |
+| `'int'`      | `[-+]?[0-9]+`                                    | `!!int`   |         | `42`, `-0`      |
+| `'intHex'`   | `0x[0-9a-fA-F]+`                                 | `!!int`   | `'HEX'` | `0xff0033`      |
+| `'intOct'`   | `0o[0-7]+`                                       | `!!int`   | `'OCT'` | `0o127`         |
+| `'null'`     | `~⎮null⎮Null⎮NULL`                               | `!!null`  |         | `null`          |
+
+### YAML 1.1
+
+These tags are a part of the YAML 1.1 [language-independent types](https://yaml.org/type/), but are not a part of any default YAML 1.2 schema.
 
 | Identifier    | YAML Type                                             | JS Type      | Description                                                                                                                                                                        |
 | ------------- | ----------------------------------------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -31,7 +65,7 @@ For further customisation, `customTags` may also be a function `(Tag[]) => (Tag[
 | `'omap'`      | [`!!omap`](https://yaml.org/type/omap.html)           | `Map`        | Ordered sequence of key: value pairs without duplicates. Using `mapAsMap: true` together with this tag is not recommended, as it makes the parse → stringify loop non-idempotent.  |
 | `'pairs'`     | [`!!pairs`](https://yaml.org/type/pairs.html)         | `Array`      | Ordered sequence of key: value pairs allowing duplicates. To create from JS, you'll need to explicitly use `'!!pairs'` as the third argument of [`createNode()`](#creating-nodes). |
 | `'set'`       | [`!!set`](https://yaml.org/type/set.html)             | `Set`        | Unordered set of non-equal values.                                                                                                                                                 |
-| `'timestamp'` | [`!!timestamp`](https://yaml.org/type/timestamp.html) | `Date`       | A point in time.                                                                                                                                                                   |
+| `'timestamp'` | [`!!timestamp`](https://yaml.org/type/timestamp.html) | `Date`       | A point in time, e.g. `2001-12-15T02:59:43`.                                                                                                                                       |
 
 ## Writing Custom Tags
 
