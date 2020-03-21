@@ -20,21 +20,21 @@ YAML.Document.defaults
 
 The `version` option value (`'1.2'` by default) may be overridden by any document-specific `%YAML` directive.
 
-| Option          | Type                                                             | Description                                                                                                                                                     |
-| --------------- | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| anchorPrefix    | `string`                                                         | Default prefix for anchors. By default `'a'`, resulting in anchors `a1`, `a2`, etc.                                                                             |
-| customTags      | [`Tag[]`](#custom-data-types) &vert; `function`                  | Array of additional (custom) tags to include in the schema                                                                                                      |
-| keepBlobsInJSON | `boolean`                                                        | Allow non-JSON JavaScript objects to remain in the `toJSON` output. Relevant with the YAML 1.1 `!!timestamp` and `!!binary` tags. By default `true`.            |
-| keepCstNodes    | `boolean`                                                        | Include references in the AST to each node's corresponding CST node. By default `false`.                                                                        |
-| keepNodeTypes   | `boolean`                                                        | Store the original node type when parsing documents. By default `true`.                                                                                         |
-| mapAsMap        | `boolean`                                                        | When outputting JS, use Map rather than Object to represent mappings. By default `false`.                                                                       |
-| maxAliasCount   | `number`                                                         | Prevent [exponential entity expansion attacks] by limiting data aliasing count; set to `-1` to disable checks; `0` disallows all alias nodes. By default `100`. |
-| merge           | `boolean`                                                        | Enable support for `<<` merge keys. By default `false` for YAML 1.2 and `true` for earlier versions.                                                            |
-| prettyErrors    | `boolean`                                                        | Include line position & node type directly in errors; drop their verbose source and context. By default `false`.                                                |
-| schema          | `'core'` &vert; `'failsafe'` &vert; `'json'` &vert; `'yaml-1.1'` | The base schema to use. By default `'core'` for YAML 1.2 and `'yaml-1.1'` for earlier versions.                                                                 |
-| simpleKeys      | `boolean`                                                        | When stringifying, require keys to be scalars and to use implicit rather than explicit notation. By default `false`.                                            |
-| sortMapEntries  | `boolean` &vert; `(a, b: Pair) => number`                        | When stringifying, sort map entries. If `true`, sort by comparing key values with `<`. By default `false`.                                                                                       |
-| version         | `string`                                                         | The YAML version used by documents without a `%YAML` directive. By default `'1.2'`.                                                                             |
+| Option          | Type                                        | Description                                                                                                                                                             |
+| --------------- | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| anchorPrefix    | `string`                                    | Default prefix for anchors. By default `'a'`, resulting in anchors `a1`, `a2`, etc.                                                                                     |
+| customTags      | `Tag[] ⎮ function`                          | Array of [additional tags](#custom-data-types) to include in the schema                                                                                                 |
+| keepBlobsInJSON | `boolean`                                   | Allow non-JSON JavaScript objects to remain in the `toJSON` output. Relevant with the YAML 1.1 `!!timestamp` and `!!binary` tags as well as BigInts. By default `true`. |
+| keepCstNodes    | `boolean`                                   | Include references in the AST to each node's corresponding CST node. By default `false`.                                                                                |
+| keepNodeTypes   | `boolean`                                   | Store the original node type when parsing documents. By default `true`.                                                                                                 |
+| mapAsMap        | `boolean`                                   | When outputting JS, use Map rather than Object to represent mappings. By default `false`.                                                                               |
+| maxAliasCount   | `number`                                    | Prevent [exponential entity expansion attacks] by limiting data aliasing count; set to `-1` to disable checks; `0` disallows all alias nodes. By default `100`.         |
+| merge           | `boolean`                                   | Enable support for `<<` merge keys. By default `false` for YAML 1.2 and `true` for earlier versions.                                                                    |
+| prettyErrors    | `boolean`                                   | Include line position & node type directly in errors; drop their verbose source and context. By default `false`.                                                        |
+| schema          | `'core' ⎮ 'failsafe' ⎮ 'json' ⎮ 'yaml-1.1'` | The base schema to use. By default `'core'` for YAML 1.2 and `'yaml-1.1'` for earlier versions.                                                                         |
+| simpleKeys      | `boolean`                                   | When stringifying, require keys to be scalars and to use implicit rather than explicit notation. By default `false`.                                                    |
+| sortMapEntries  | `boolean ⎮ (a, b: Pair) => number`          | When stringifying, sort map entries. If `true`, sort by comparing key values with `<`. By default `false`.                                                              |
+| version         | `'1.0' ⎮ '1.1' ⎮ '1.2'`                     | The YAML version used by documents without a `%YAML` directive. By default `'1.2'`.                                                                                     |
 
 [exponential entity expansion attacks]: https://en.wikipedia.org/wiki/Billion_laughs_attack
 
@@ -73,16 +73,25 @@ mergeResult.target
 
 **Merge** keys are a [YAML 1.1 feature](http://yaml.org/type/merge.html) that is not a part of the 1.2 spec. To use a merge key, assign an alias node or an array of alias nodes as the value of a `<<` key in a mapping.
 
-## Tag Stringifier Options
+## Scalar Options
 
 ```js
-import { binaryOptions, boolOptions, nullOptions, strOptions } from 'yaml/types'
+import {
+  binaryOptions,
+  boolOptions,
+  intOptions,
+  nullOptions,
+  strOptions
+} from 'yaml/types'
 
 binaryOptions // Used by !!binary, part of the yaml-1.1 schema
 // { defaultType: 'BLOCK_LITERAL', lineWidth: 76 }
 
 boolOptions
 // { trueStr: 'true', falseStr: 'false' }
+
+intOptions
+// { asBigInt: false }
 
 nullOptions
 // { nullStr: 'null' }
@@ -101,4 +110,6 @@ YAML.stringify({ 'this is': null })
 // 'this is': ~
 ```
 
-To customise the YAML stringification, some options objects are exported from `'yaml/types'`. Note that these values are used by all documents. For example, to disable the automatic line wrapping, set `strOptions.fold.lineWidth` to `0`.
+To customise the parsing and stringification of scalars, some options objects are exported from `'yaml/types'`. Note that these values are used by all documents. For example, to disable the automatic line wrapping, set `strOptions.fold.lineWidth` to `0`.
+
+Among these, `intOptions.asBigInt` is currently the only one that affects parsing (if true, integers are parsed into [BigInt](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/BigInt) values).
