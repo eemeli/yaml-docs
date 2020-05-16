@@ -56,13 +56,15 @@ bundle exec middleman server
 
 # OR run this to run with vagrant
 vagrant up
+
+# OR run this to run with docker
+docker build . -t slate:latest # this only needs to be run once
+docker run -p 4567:4567 -v $(pwd)/source:/srv/slate/source slate:latest
 ```
 
 You can now see the docs at http://localhost:4567. Whoa! That was fast!
 
 Now that Slate is all set up on your machine, you'll probably want to learn more about [editing Slate markdown](https://github.com/slatedocs/slate/wiki/Markdown-Syntax), or [how to publish your docs](https://github.com/slatedocs/slate/wiki/Deploying-Slate).
-
-If you'd prefer to use Docker, instructions are available [in the wiki](https://github.com/slatedocs/slate/wiki/Docker).
 
 ### Note on JavaScript Runtime
 
@@ -95,7 +97,7 @@ Found a bug with upstream Slate? Go ahead and [submit an issue](https://github.c
 Contributors
 --------------------
 
-Slate was built by [Robert Lord](https://lord.io) while interning at [TripIt](https://www.tripit.com/).
+Slate was built by [Robert Lord](https://lord.io) while at [TripIt](https://www.tripit.com/). The project is now maintained by [Matthew Peveler](https://github.com/MasterOdin) and [Mike Ralphson](https://github.com/MikeRalphson).
 
 Thanks to the following people who have submitted major pull requests:
 
