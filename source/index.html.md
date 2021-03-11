@@ -18,4 +18,6 @@ includes:
   - 09_yaml_syntax
 
 search: true
+
+code_clipboard: true
 ---
