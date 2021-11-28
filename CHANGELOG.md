@@ -1,5 +1,32 @@
 # Changelog
 
+## Version 2.11.0
+
+*August 12, 2021*
+
+* __[Security]__ Bump addressable transitive dependency from 2.7.0 to 2.8.0
+* Support specifying custom meta tags in YAML front-matter
+* Bump nokogiri from 1.11.3 to 1.12.3 (minimum supported version is 1.11.4)
+* Bump middleman-autoprefixer from 2.10.1 to 3.0.0
+* Bump jquery from 3.5.1 to 3.6.0
+* Bump middleman from [`d180ca3`](https://github.com/middleman/middleman/commit/d180ca337202873f2601310c74ba2b6b4cf063ec) to 4.4.0
+
+## Version 2.10.0
+
+*April 13, 2021*
+
+* Add support for Ruby 3.0 (thanks @shaun-scale)
+* Add requirement for Git on installing dependencies
+* Bump nokogiri from 1.11.2 to 1.11.3
+* Bump middleman from 4.3.11 to [`d180ca3`](https://github.com/middleman/middleman/commit/d180ca337202873f2601310c74ba2b6b4cf063ec)
+
+## Version 2.9.2
+
+*March 30, 2021*
+
+* __[Security]__ Bump kramdown from 2.3.0 to 2.3.1
+* Bump nokogiri from 1.11.1 to 1.11.2
+
 ## Version 2.9.1
 
 *February 27, 2021*
