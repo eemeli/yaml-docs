@@ -1,1 +1,0 @@
-../../../docs/05_content_nodes.md
