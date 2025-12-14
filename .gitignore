@@ -26,6 +26,6 @@ doc/
 # Vagrant artifacts
 ubuntu-*-console.log
 
-# Managed by yaml/docs/prepare-docs.mjs
+# Managed by yaml/docs/prepare-docs.js
 /source/includes/
 /source/index.html.md
