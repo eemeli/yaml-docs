@@ -52,13 +52,6 @@ under the License.
     </style>
     <%= stylesheet_link_tag :screen, media: :screen %>
     <%= stylesheet_link_tag :print, media: :print %>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-126084011-1"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'UA-126084011-1');
-    </script>
     <% if current_page.data.search %>
       <%= javascript_include_tag  "all" %>
     <% else %>

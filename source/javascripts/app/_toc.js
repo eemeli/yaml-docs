@@ -24,15 +24,6 @@
     $("#nav-button").removeClass('open');
   };
 
-  var logTocClick = function(el) {
-    var cat = el;
-    if (!/\btoc-h1\b/.test(el.className)) try {
-      cat = el.parentElement.parentElement.previousElementSibling;
-    } catch (e) {}
-    var ev = { event_category: cat.innerText, event_label: el.innerText }
-    gtag('event', 'toc-click', ev);
-  }
-
   function loadToc($toc, tocLinkSelector, tocListSelector, scrollOffset) {
     var headerHeights = {};
     var pageHeight = 0;
@@ -109,7 +100,6 @@
       });
       $(".page-wrapper").click(closeToc);
       $(".toc-link").click(function() {
-        logTocClick(this);
         closeToc();
       });
 
